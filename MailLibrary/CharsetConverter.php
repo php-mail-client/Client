@@ -7,6 +7,7 @@
 namespace greeny\MailLib;
 
 use Nette\Object;
+use Nette\StaticClassException;
 
 /**
  * Class to convert from one charset to another, provides case-insensitive access.
@@ -18,6 +19,14 @@ class CharsetConverter extends Object
 
 	/** @var bool */
 	protected static $initialized = FALSE;
+
+	/**
+	 * Static class
+	 */
+	public function __construct()
+	{
+		throw new StaticClassException();
+	}
 
 	/**
 	 * Initializes self. Internal function, do not call it directly.
