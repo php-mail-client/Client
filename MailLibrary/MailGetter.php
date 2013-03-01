@@ -98,6 +98,35 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	}
 
 	/**
+	 * Gets mail by id.
+	 *
+	 * @param int $id Mail id
+	 * @return Mail
+	 * @throws MailException When email not found.
+	 */
+	public function getMailById($id) {
+		$this->initialize();
+		if(isset($this->mails[$id])) {
+			return $this->mails[$id];
+		} else {
+			throw new MailException("Mail with id $id doesn't exist.");
+		}
+	}
+
+	/**
+	 * Gets ids of all found mails
+	 *
+	 * @return array of int
+	 */
+	public function getMailIds() {
+		$return = array();
+		foreach($this->initialize()->mails as $id => $m) {
+			$return[] = $id;
+		}
+		return $return;
+	}
+
+	/**
 	 * Flushes changes to mail server.
 	 *
 	 * @return MailGetter Provides fluent interface.
