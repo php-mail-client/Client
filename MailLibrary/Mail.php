@@ -12,7 +12,8 @@ use Nette\Object,
 /**
  * Represents one mail.
  */
-class Mail extends Object {
+class Mail extends Object
+{
 	/** @var int */
 	protected $id;
 
@@ -39,7 +40,8 @@ class Mail extends Object {
 	 * @param resource  $connection connection to mail server
 	 * @param int       $id         mail id
 	 */
-	public function __construct($connection, $id) {
+	public function __construct($connection, $id)
+	{
 		$this->id = $id;
 		$this->connection = $connection;
 	}
@@ -49,7 +51,8 @@ class Mail extends Object {
 	 *
 	 * @return Mail Provides fluent interface.
 	 */
-	protected function initializeHeaders() {
+	protected function initializeHeaders()
+	{
 		if(!$this->rawData['headers']) {
 			$this->rawData['headers'] = $headers = imap_fetchheader($this->connection, $this->id);
 			$h = Strings::split($headers, "#\r?\n#");
@@ -85,7 +88,8 @@ class Mail extends Object {
 	 *
 	 * @return int
 	 */
-	public function getId() {
+	public function getId()
+	{
 		return $this->id;
 	}
 
@@ -94,7 +98,8 @@ class Mail extends Object {
 	 *
 	 * @return Mail Provides fluent interface.
 	 */
-	protected function initializeStructure() {
+	protected function initializeStructure()
+	{
 		if(!$this->structure) {
 			$this->structure = new MailStructure($this->connection, $this->id);
 		}
@@ -106,7 +111,8 @@ class Mail extends Object {
 	 *
 	 * @return string
 	 */
-	public function getBody() {
+	public function getBody()
+	{
 		return ($body = $this->getHtmlBody()) === '' ? $this->getTextBody() : $body;
 	}
 
@@ -115,7 +121,8 @@ class Mail extends Object {
 	 *
 	 * @return string
 	 */
-	public function getTextBody() {
+	public function getTextBody()
+	{
 		return $this->initializeStructure()->getStructure()->getText();
 	}
 
@@ -124,7 +131,8 @@ class Mail extends Object {
 	 *
 	 * @return string
 	 */
-	public function getHtmlBody() {
+	public function getHtmlBody()
+	{
 		return $this->initializeStructure()->getStructure()->getHtml();
 	}
 
@@ -133,7 +141,8 @@ class Mail extends Object {
 	 *
 	 * @return MailStructure
 	 */
-	public function getStructure() {
+	public function getStructure()
+	{
 		return $this->initializeStructure()->structure;
 	}
 
@@ -145,7 +154,8 @@ class Mail extends Object {
 	 * @return string
 	 * @throws MailException When $need === TRUE and header not found.
 	 */
-	public function getHeader($name, $need = FALSE){
+	public function getHeader($name, $need = FALSE)
+	{
 		if(isset($this->data['formattedHeaders'][$name])) {
 			return $this->data['formattedHeaders'][$name];
 		} else {
@@ -163,7 +173,8 @@ class Mail extends Object {
 	 * @param string    $name   Header name
 	 * @return mixed
 	 */
-	public function &__get($name) {
+	public function &__get($name)
+	{
 		$this->initializeHeaders();
 		if(isset($this->data['headers'][$name])) {
 			return $this->data['headers'][$name];

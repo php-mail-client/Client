@@ -16,7 +16,8 @@ use Nette\Object,
 /**
  * Basic class for downloading mail from mail server using IMAP.
  */
-class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
+class MailGetter extends Object implements Iterator, Countable, ArrayAccess
+{
 	/** @var \Nette\ArrayHash */
 	protected $data;
 
@@ -44,7 +45,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	 * @param int    $port      port
 	 * @param bool   $ssl       enable SSL?
 	 */
-	public function __construct($username, $password, $host, $port, $ssl = TRUE) {
+	public function __construct($username, $password, $host, $port, $ssl = TRUE)
+	{
 		$this->data = $data = new ArrayHash();
 		$data->username = $username;
 		$data->password = $password;
@@ -56,7 +58,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Class destructor, flushes all changes done to emails
 	 */
-	public function __destruct() {
+	public function __destruct()
+	{
 		$this->flush();
 	}
 
@@ -66,7 +69,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	 * @return MailGetter Provides fluent interface
 	 * @throws MailException When error occurs during connection.
 	 */
-	protected function connect() {
+	protected function connect()
+	{
 		if(!$this->connected) {
 			$data = $this->data;
 			$ssl = $data->ssl ? '/ssl' : '';
@@ -85,7 +89,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return MailGetter Provides fluent interface.
 	 */
-	protected function initialize() {
+	protected function initialize()
+	{
 		if(!$this->initialized) {
 			$this->connect();
 			$mailIds = imap_search($this->connection, 'ALL', SE_FREE, 'UTF-8');
@@ -104,7 +109,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	 * @return Mail
 	 * @throws MailException When email not found.
 	 */
-	public function getMailById($id) {
+	public function getMailById($id)
+	{
 		$this->initialize();
 		if(isset($this->mails[$id])) {
 			return $this->mails[$id];
@@ -118,7 +124,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return array of int
 	 */
-	public function getMailIds() {
+	public function getMailIds()
+	{
 		$return = array();
 		foreach($this->initialize()->mails as $id => $m) {
 			$return[] = $id;
@@ -126,7 +133,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 		return $return;
 	}
 
-	public function countMails() {
+	public function countMails()
+	{
 		return $this->initialize()->count($this->mails);
 	}
 
@@ -135,57 +143,68 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return MailGetter Provides fluent interface.
 	 */
-	public function flush() {
+	public function flush()
+	{
 		imap_expunge($this->connection);
 		return $this;
 	}
 
 	// INTERFACE COUNTABLE
 
-	public function count() {
+	public function count()
+	{
 		return $this->countMails();
 	}
 
 	// INTERFACE ITERATOR
 
-	public function current() {
+	public function current()
+	{
 		return $this->mails[$this->iterator];
 	}
 
-	public function next() {
+	public function next()
+	{
 		$this->iterator++;
 	}
 
-	public function key() {
+	public function key()
+	{
 		return $this->iterator;
 	}
 
-	public function valid() {
+	public function valid()
+	{
 		return isset($this->mails[$this->iterator]);
 	}
 
-	public function rewind() {
+	public function rewind()
+	{
 		$this->initialize();
 		$this->iterator = 1;
 	}
 
 	// INTERFACE ARRAYACCESS
 
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		$this->initialize();
 		return isset($this->mails[$offset]);
 	}
 
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		$this->initialize();
 		return $this->mails[$offset];
 	}
 
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value)
+	{
 		throw new MailException("Cannot set readonly mail.");
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		$this->initialize();
 		if(isset($this[$offset])) {
 			imap_delete($this->connection, $offset);
