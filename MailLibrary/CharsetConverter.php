@@ -6,10 +6,12 @@
 
 namespace greeny\MailLib;
 
+use Nette\Object;
+
 /**
  * Class to convert from one charset to another, provides case-insensitive access.
  */
-class CharsetConvertor {
+class CharsetConverter extends Object{
 	/** @var array */
 	protected static $aliasList = array();
 
