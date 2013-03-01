@@ -7,13 +7,13 @@
 namespace greeny\MailLib;
 
 use Nette\ArrayHash,
-	Nette\Utils\Strings;
+	Nette\Utils\Strings,
+	Nette\Object;
 
 /**
  * Represents mail structure
  */
-class MailStructure {
-
+class MailStructure extends Object {
 	const TYPE_TEXT = 0;
 	const TYPE_MULTIPART = 1;
 	const TYPE_MESSAGE = 2;
