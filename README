@@ -1,0 +1,42 @@
+# MailLibrary - usage #
+
+## Initialize ##
+	$mails = new MailGetter('username', 'password', 'imap.connection.com', 993, TRUE)
+	// has parameters $username, $password, $host, $port, $enableSSL
+
+## 2) You now can access all mails: ##
+- using foreach:
+	foreach($mails as $id => $mail)
+
+- directly through id:
+	$mail = $mails[$id];
+
+__You can also count number of mails using:__
+	$count = count($mails);
+
+## 3) Operations with emails: ##
+Now, when you have `$mail` variable, you can get properties:
+	$subject = $mail->subject;
+	$to = $mail->to;
+	$customHeader = $mail->customHeader;
+	$id = $mail->id; // the $id can be used to reference this email in $mails variable, see Deleting mails
+
+__Mail header names are automatically sanitized - e.g. _X-Recieved-from_ will become _xRecievedFrom_, etc.__
+
+- Another way to get headers:
+	$header = $mail->getHeader('headerTitle'); // also use sanitized name
+	//$header will contain empty string if header not found.
+	
+	$header = $mail->getHeader('headerTitle', TRUE); // throws exception when header not found.
+
+You can get their content:
+	$body = $mail->body; //returns HTML body, if not set, returns text body
+	$textBody = $mail->textBody;
+	$htmlBody = $mail->htmlBody;
+
+## 4) Deleting mails ##
+You can delete mail using MailGetter $mails variable (NOT using $mail variable).
+	unset($mails[$mailId]);
+
+__All changes are only saved to memory and sent to server in destructor. To send it manually, use:__
+	$mails->flush();
