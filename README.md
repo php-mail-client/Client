@@ -38,6 +38,7 @@ $id = $mail->id; // the $id can be used to reference this email in $mails variab
 *Mail header names are automatically sanitized - e.g. `X-Recieved-from` will become `xRecievedFrom`, etc.*
 
 - Another way to get headers:
+
 ```php
 $header = $mail->getHeader('headerTitle'); // also use sanitized name
 //$header will contain empty string if header not found.
