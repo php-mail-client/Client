@@ -126,6 +126,10 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 		return $return;
 	}
 
+	public function countMails() {
+		return $this->initialize()->count($this->mails);
+	}
+
 	/**
 	 * Flushes changes to mail server.
 	 *
@@ -139,7 +143,7 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess {
 	// INTERFACE COUNTABLE
 
 	public function count() {
-		return count($this->mails);
+		return $this->countMails();
 	}
 
 	// INTERFACE ITERATOR
