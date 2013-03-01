@@ -1,7 +1,7 @@
 {
 	"name": "greeny/maillibrary",
 	"description": "This library allows you to get mails from mail server.",
-	"version" : "1.0.0"
+	"version" : "1.0.0",
 	"license": "MIT",
 	"authors": [
 		{
