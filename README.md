@@ -1,5 +1,10 @@
-MailLibrary - usage
-===================
+MailLibrary
+===========
+
+Installation
+------------
+- download plugin and extract it to libs directory
+- or use composer (greeny/maillibrary)
 
 Initialize
 ----------
@@ -11,11 +16,13 @@ $mails = new MailGetter('username', 'password', 'imap.connection.com', 993, TRUE
 You now can access all mails:
 -----------------------------
 - using foreach:
+
 ```php
 foreach($mails as $id => $mail)
 ```
 
 - directly through id:
+
 ```php
 $mail = $mails[$id];
 ```
