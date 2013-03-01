@@ -30,6 +30,7 @@ class Mail extends Object {
 	/** @var array */
 	protected $data = array(
 		'headers' => array(),
+		'formattedHeaders' => array(),
 	);
 
 	/**
@@ -61,7 +62,8 @@ class Mail extends Object {
 
 			foreach($h as $header) {
 				$data = explode(":", $header);
-				$key = lcfirst(Strings::replace($data[0], "~-.~", function($matches){
+				$key = $data[0];
+				$formattedKey = lcfirst(Strings::replace($key, "~-.~", function($matches){
 					return ucfirst(substr($matches[0], 1));
 				}));
 				unset($data[0]);
@@ -71,6 +73,7 @@ class Mail extends Object {
 					$value = imap_utf8(trim(implode(':', $data)));
 				}
 				$this->data['headers'][$key] = $value;
+				$this->data['formattedHeaders'][$formattedKey] = $value;
 			}
 		}
 
@@ -143,8 +146,8 @@ class Mail extends Object {
 	 * @throws MailException When $need === TRUE and header not found.
 	 */
 	public function getHeader($name, $need = FALSE){
-		if(isset($this->data['headers'][$name])) {
-			return $this->data['headers'][$name];
+		if(isset($this->data['formattedHeaders'][$name])) {
+			return $this->data['formattedHeaders'][$name];
 		} else {
 			if($need) {
 				throw new MailException("Header '$name' not found.");
