@@ -13,7 +13,8 @@ use Nette\ArrayHash,
 /**
  * Represents mail structure
  */
-class MailStructure extends Object {
+class MailStructure extends Object
+{
 	const TYPE_TEXT = 0;
 	const TYPE_MULTIPART = 1;
 	const TYPE_MESSAGE = 2;
@@ -60,7 +61,8 @@ class MailStructure extends Object {
 	 * @param resource  $connection connection to mail server
 	 * @param int       $id         mail id
 	 */
-	public function __construct($connection, $id) {
+	public function __construct($connection, $id)
+	{
 		$this->connection = $connection;
 		$this->id = $id;
 		$this->structure = $structure = imap_fetchstructure($this->connection, $this->id);
@@ -72,7 +74,8 @@ class MailStructure extends Object {
 	 *
 	 * @return string
 	 */
-	public function getText() {
+	public function getText()
+	{
 		return $this->text;
 	}
 
@@ -81,7 +84,8 @@ class MailStructure extends Object {
 	 *
 	 * @return string
 	 */
-	public function getHtml() {
+	public function getHtml()
+	{
 		return $this->html;
 	}
 
@@ -92,7 +96,8 @@ class MailStructure extends Object {
 	 * @param string|NULL   $section    Actual section number
 	 * @return MailStructure Provides fluent interface.
 	 */
-	protected function addPart($structure, $section = NULL) {
+	protected function addPart($structure, $section = NULL)
+	{
 		$params = $this->parseParams($structure);
 
 		$type = $structure->type;
@@ -106,7 +111,7 @@ class MailStructure extends Object {
 			}
 
 			if(isset($params->charset)) {
-				$part = CharsetConvertor::convert($part, $params->charset);
+				$part = CharsetConverter::convert($part, $params->charset);
 			}
 
 			if($subtype === 'HTML') {
@@ -138,7 +143,8 @@ class MailStructure extends Object {
 	 * @param   object  $structure  The structure to parse
 	 * @return \Nette\ArrayHash parameters
 	 */
-	protected function parseParams($structure) {
+	protected function parseParams($structure)
+	{
 		$params = new ArrayHash();
 		if($structure->ifdparameters) {
 			foreach($structure->dparameters as $parameter) {
@@ -161,7 +167,8 @@ class MailStructure extends Object {
 	 * @param string $name Parameter name
 	 * @return string sanitized name
 	 */
-	protected function sanitizeParamName($name) {
+	protected function sanitizeParamName($name)
+	{
 		return lcfirst(trim(Strings::replace(strtolower($name), "~-.~", function($matches){
 			return ucfirst(substr($matches[0], 1));
 		})));
@@ -174,7 +181,8 @@ class MailStructure extends Object {
 	 * @param int       $encoding   Encoding
 	 * @return string decoded string
 	 */
-	protected function decodePart($string, $encoding) {
+	protected function decodePart($string, $encoding)
+	{
 		if($encoding === self::ENCODING_BASE64) {
 			$string = base64_decode($string);
 		} elseif($encoding === self::ENCODING_QUOTED_PRINTABLE) {

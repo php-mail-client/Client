@@ -11,6 +11,7 @@ use \Exception;
 /**
  * This exception is thrown whenever any error with email connection occurs.
  */
-class MailException extends Exception {
+class MailException extends Exception
+{
 
 }

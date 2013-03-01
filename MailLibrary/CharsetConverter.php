@@ -11,7 +11,8 @@ use Nette\Object;
 /**
  * Class to convert from one charset to another, provides case-insensitive access.
  */
-class CharsetConverter extends Object{
+class CharsetConverter extends Object
+{
 	/** @var array */
 	protected static $aliasList = array();
 
@@ -21,7 +22,8 @@ class CharsetConverter extends Object{
 	/**
 	 * Initializes self. Internal function, do not call it directly.
 	 */
-	protected static function init() {
+	protected static function init()
+	{
 		if(!self::$initialized) {
 			$enc = mb_list_encodings();
 			foreach($enc as $e) {
@@ -37,7 +39,8 @@ class CharsetConverter extends Object{
 	 * @param string $to        to which encoding
 	 * @return string   converted string
 	 */
-	public static function convert($string, $from = NULL, $to = 'utf-8') {
+	public static function convert($string, $from = NULL, $to = 'utf-8')
+	{
 		self::init();
 
 		$from = strtolower($from);
