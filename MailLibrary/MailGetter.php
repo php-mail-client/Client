@@ -120,6 +120,13 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess
 		}
 	}
 
+	public function deleteMail($id) {
+		$this->initialize();
+		if(isset($this[$id])) {
+			imap_delete($this->connection, $id);
+		}
+	}
+
 	/**
 	 * Gets ids of all found mails
 	 *
@@ -206,9 +213,6 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess
 
 	public function offsetUnset($offset)
 	{
-		$this->initialize();
-		if(isset($this[$offset])) {
-			imap_delete($this->connection, $offset);
-		}
+		$this->deleteMail($offset);
 	}
 }
