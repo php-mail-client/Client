@@ -93,9 +93,10 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess
 	{
 		if(!$this->initialized) {
 			$this->connect();
-			$mailIds = imap_search($this->connection, 'ALL', SE_FREE, 'UTF-8');
-			foreach($mailIds as $mailId) {
-				$this->mails[$mailId] = new Mail($this->connection, $mailId);
+			if($mailIds = imap_search($this->connection, 'ALL', SE_FREE, 'UTF-8')) {
+				foreach($mailIds as $mailId) {
+					$this->mails[$mailId] = new Mail($this->connection, $mailId);
+				}
 			}
 		}
 
