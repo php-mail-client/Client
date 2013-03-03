@@ -111,7 +111,7 @@ class MailStructure extends Object
 			}
 
 			if(isset($params->charset)) {
-				$part = CharsetConverter::convert($part, $params->charset);
+				$part = CharsetConvertor::convert($part, $params->charset);
 			}
 
 			if($subtype === 'HTML') {

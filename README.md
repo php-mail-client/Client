@@ -47,10 +47,10 @@ $id = $mail->id; // the $id can be used to reference this email in $mails variab
 - Another way to get headers:
 
 ```php
-$header = $mail->getHeader('headerTitle'); // also use sanitized name
+$header = $mail->getHeader('Header-Title'); // use not-sanitized name, normally, you would write $mail->headerTitle
 //$header will contain empty string if header not found.
 
-$header = $mail->getHeader('headerTitle', TRUE); // throws exception when header not found.
+$header = $mail->getHeader('Header-Title', TRUE); // throws exception when header not found.
 ```
 
 You can get their content:
