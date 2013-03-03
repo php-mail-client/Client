@@ -8,6 +8,9 @@
 			"homepage": "https://github.com/greeny"
 		}
 	],
+	"autoload": {
+		"classmap": ["/"]
+	},
 	"require": {
 		"php": ">= 5.3.0",
 		"nette/nette": ">= 2.0"
