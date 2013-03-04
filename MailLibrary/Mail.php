@@ -17,7 +17,7 @@ class Mail extends Object
 	/** @var int */
 	protected $id;
 
-	/** @var resource */
+	/** @var Connection */
 	protected $connection;
 
 	/** @var MailStructure */
@@ -37,10 +37,10 @@ class Mail extends Object
 	/**
 	 * Mail constructor
 	 *
-	 * @param resource  $connection connection to mail server
-	 * @param int       $id         mail id
+	 * @param Connection    $connection  connection to mail server
+	 * @param int           $id          mail id
 	 */
-	public function __construct($connection, $id)
+	public function __construct(Connection $connection, $id)
 	{
 		$this->id = $id;
 		$this->connection = $connection;
@@ -54,7 +54,7 @@ class Mail extends Object
 	protected function initializeHeaders()
 	{
 		if(!$this->rawData['headers']) {
-			$this->rawData['headers'] = $headers = imap_fetchheader($this->connection, $this->id);
+			$this->rawData['headers'] = $headers = imap_fetchheader($this->connection->getConnection(), $this->id);
 			$h = Strings::split($headers, "#\r?\n#");
 			for($i = count($h) - 1; $i >= 0; $i--) {
 				if(substr($h[$i], 0, 1) === ' ') {
@@ -101,7 +101,7 @@ class Mail extends Object
 	protected function initializeStructure()
 	{
 		if(!$this->structure) {
-			$this->structure = new MailStructure($this->connection, $this->id);
+			$this->structure = new MailStructure($this->connection->getConnection(), $this->id);
 		}
 		return $this;
 	}

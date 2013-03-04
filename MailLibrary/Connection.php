@@ -45,7 +45,7 @@ class Connection extends Object implements IConnection
 			$len = strlen($server);
 			foreach($folders as $folder) {
 				$name = CharsetConverter::convert(substr($folder, $len), 'utf7-imap');
-				$this->mailboxes[$name] = new Mailbox($this->connection, $name);
+				$this->mailboxes[$name] = new Mailbox($this, $name);
 			}
 		} else {
 			throw new MailException("No mailboxes found at server '$server'.");
