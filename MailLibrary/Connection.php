@@ -22,6 +22,17 @@ class Connection extends Object implements IConnection
 	/** @var array of Mailbox */
 	protected $mailboxes = array();
 
+	/** @var string the mailbox, that is currently using */
+	public $usingMailbox;
+
+	/**
+	 * @param string    $username   username
+	 * @param string    $password   password
+	 * @param string    $host       host (e.g. imap.example.com)
+	 * @param int       $port       port to use (e.g. 992)
+	 * @param bool      $ssl        enable ssl?
+	 * @throws MailException when connection not created
+	 */
 	public function __construct($username, $password, $host, $port, $ssl = TRUE)
 	{
 		$ssl = $ssl ? '/ssl' : '';
@@ -33,33 +44,80 @@ class Connection extends Object implements IConnection
 		if(is_array($folders)) {
 			$len = strlen($server);
 			foreach($folders as $folder) {
-				$this->mailboxes[CharsetConverter::convert(substr($folder, $len), 'utf7-imap')] = new Mailbox();
+				$name = CharsetConverter::convert(substr($folder, $len), 'utf7-imap');
+				$this->mailboxes[$name] = new Mailbox($this->connection, $name);
 			}
 		} else {
 			throw new MailException("No mailboxes found at server '$server'.");
 		}
 	}
 
+	/**
+	 * Flushes changes to server and disconects.
+	 */
 	public function __destruct()
 	{
-		$this->disconnect();
+		$this->flush()
+			->disconnect();
 	}
 
+	/**
+	 * Gets connection
+	 *
+	 * @return resource
+	 */
 	public function getConnection()
 	{
 		return $this->connection;
 	}
 
+	/**
+	 * Gets server string
+	 *
+	 * @return string
+	 */
+	public function getServer()
+	{
+		return $this->server;
+	}
+
+	/**
+	 * Connects to mail server. Internal function, do not call it directly.
+	 *
+	 * @param string    $username   username
+	 * @param string    $password   password
+	 * @param string    $host       imap host string
+	 * @throws MailException when there is an error in connection
+	 * @return \greeny\MailLib\Connection Provides fluent interface.
+	 */
 	protected function connect($username, $password, $host)
 	{
 		if(!$this->connection = @imap_open($host, $username, $password)) { // @ - To allow throwing exceptions
 			throw new MailException("Colud not connect to '$host' using username '$username'.");
 		}
+		return $this;
 	}
 
-	protected function disconnect()
+	/**
+	 * Disconnects from server.
+	 *
+	 * @return \greeny\MailLib\Connection Provides fluent interface.
+	 */
+	public function disconnect()
 	{
 		imap_close($this->connection);
+		return $this;
+	}
+
+	/**
+	 * Flushes changes to server.
+	 *
+	 * @return \greeny\MailLib\Connection Provides fluent interface.
+	 */
+	public function flush()
+	{
+		imap_expunge($this->connection);
+		return $this;
 	}
 
 	/**
@@ -72,8 +130,17 @@ class Connection extends Object implements IConnection
 		return $this->mailboxes;
 	}
 
+	/**
+	 * @param string    $name   name of Mailbox
+	 * @return Mailbox
+	 * @throws MailException whne mailbox not found
+	 */
 	public function getMailbox($name)
 	{
-		if(isset($this->mailboxes[$name]))
+		if(isset($this->mailboxes[$name])) {
+			return $this->mailboxes[$name];
+		} else {
+			throw new MailException("Mailbox $name doesn't exist.");
+		}
 	}
 }
