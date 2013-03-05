@@ -55,10 +55,6 @@ class CharsetConverter extends Object
 		$from = strtolower($from);
 		$to = strtolower($to);
 
-		if($from === NULL) {
-			$from = mb_detect_encoding($string);
-		}
-
 		if(isset(self::$aliasList[$from])) {
 			$from = self::$aliasList[$from];
 		}

@@ -39,11 +39,13 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess
 	/**
 	 * Class constructor
 	 *
+	 * @deprecated
 	 * @param string $username  username
 	 * @param string $password  password
 	 * @param string $host      host
 	 * @param int    $port      port
 	 * @param bool   $ssl       enable SSL?
+	 * @throws MailException Deprecated class
 	 */
 	public function __construct($username, $password, $host, $port, $ssl = TRUE)
 	{
@@ -53,6 +55,8 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess
 		$data->host = $host;
 		$data->port = $port;
 		$data->ssl = $ssl;
+
+		throw new MailException(__CLASS__." is deprecated in 1.1, use greeny\\MailGetter\\Connection instead.");
 	}
 
 	/**

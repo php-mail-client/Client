@@ -14,10 +14,37 @@ use Nette\Object,
  */
 class Mail extends Object
 {
+	const ORDER_DATE = SORTDATE;
+	const ORDER_ARRIVAL = SORTARRIVAL;
+	const ORDER_FROM = SORTFROM;
+	const ORDER_SUBJECT = SORTSUBJECT;
+	const ORDER_TO = SORTTO;
+	const ORDER_CC = SORTCC;
+	const ORDER_SIZE = SORTSIZE;
+
+	const FILTER_ANSWERED = "ANSWERED";
+	const FILTER_BCC = "BCC [S]";
+	const FILTER_BEFORE = "BEFORE [D]";
+	const FILTER_BODY = "BODY [S]";
+	const FILTER_CC = "CC [S]";
+	const FILTER_DELETED = "DELETED";
+	const FILTER_FLAGGED = "FLAGGED";
+	const FILTER_FROM = "FROM [S]";
+	const FILTER_KEYWORD = "KEYWORD [S]";
+	const FILTER_NEW = "NEW";
+	const FILTER_OLD = "OLD";
+	const FILTER_RECENT = "RECENT";
+	const FILTER_SEEN = "SEEN";
+	const FILTER_SINCE = "SINCE [D]";
+	const FILTER_SUBJECT = "SUBJECT [S]";
+	const FILTER_TEXT = "TEXT [S]";
+	const FILTER_TO = "TO [S]";
+	const FILTER_NOTKEYWORD = "UNKEYWORD [S]";
+
 	/** @var int */
 	protected $id;
 
-	/** @var resource */
+	/** @var Connection */
 	protected $connection;
 
 	/** @var MailStructure */
@@ -37,10 +64,10 @@ class Mail extends Object
 	/**
 	 * Mail constructor
 	 *
-	 * @param resource  $connection connection to mail server
-	 * @param int       $id         mail id
+	 * @param Connection    $connection  connection to mail server
+	 * @param int           $id          mail id
 	 */
-	public function __construct($connection, $id)
+	public function __construct(Connection $connection, $id)
 	{
 		$this->id = $id;
 		$this->connection = $connection;
@@ -54,7 +81,7 @@ class Mail extends Object
 	protected function initializeHeaders()
 	{
 		if(!$this->rawData['headers']) {
-			$this->rawData['headers'] = $headers = imap_fetchheader($this->connection, $this->id);
+			$this->rawData['headers'] = $headers = imap_fetchheader($this->getResource(), $this->id);
 			$h = Strings::split($headers, "#\r?\n#");
 			for($i = count($h) - 1; $i >= 0; $i--) {
 				if(substr($h[$i], 0, 1) === ' ') {
@@ -96,6 +123,10 @@ class Mail extends Object
 		return $this->id;
 	}
 
+	public function getResource() {
+		return $this->connection->getResource();
+	}
+
 	/**
 	 * Initializes structure for this mail. Internal function, do not call directly.
 	 *
@@ -104,7 +135,7 @@ class Mail extends Object
 	protected function initializeStructure()
 	{
 		if(!$this->structure) {
-			$this->structure = new MailStructure($this->connection, $this->id);
+			$this->structure = new MailStructure($this->getResource(), $this->id);
 		}
 		return $this;
 	}
