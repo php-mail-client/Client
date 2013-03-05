@@ -81,7 +81,7 @@ class Mail extends Object
 	protected function initializeHeaders()
 	{
 		if(!$this->rawData['headers']) {
-			$this->rawData['headers'] = $headers = imap_fetchheader($this->connection->getConnection(), $this->id);
+			$this->rawData['headers'] = $headers = imap_fetchheader($this->getResource(), $this->id);
 			$h = Strings::split($headers, "#\r?\n#");
 			for($i = count($h) - 1; $i >= 0; $i--) {
 				if(substr($h[$i], 0, 1) === ' ') {
@@ -123,6 +123,10 @@ class Mail extends Object
 		return $this->id;
 	}
 
+	public function getResource() {
+		return $this->connection->getResource();
+	}
+
 	/**
 	 * Initializes structure for this mail. Internal function, do not call directly.
 	 *
@@ -131,7 +135,7 @@ class Mail extends Object
 	protected function initializeStructure()
 	{
 		if(!$this->structure) {
-			$this->structure = new MailStructure($this->connection->getConnection(), $this->id);
+			$this->structure = new MailStructure($this->getResource(), $this->id);
 		}
 		return $this;
 	}
