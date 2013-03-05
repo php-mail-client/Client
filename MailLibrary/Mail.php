@@ -70,7 +70,7 @@ class Mail extends Object
 					return ucfirst(substr($matches[0], 1));
 				}));
 				unset($data[0]);
-				if($key === 'subject') {
+				if($formattedKey === 'subject') {
 					$value = imap_mime_header_decode(trim(implode(':', $data)));
 					if(isset($value[0]->text)) {
 						$value = $value[0]->text;
