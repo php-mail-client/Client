@@ -72,7 +72,9 @@ class Mail extends Object
 				unset($data[0]);
 				if($formattedKey === 'subject') {
 					$value = imap_mime_header_decode(trim(implode(':', $data)));
-					$value = $value[0]->text;
+					if(isset($value[0]->text)) {
+						$value = $value[0]->text;
+					}
 				} else {
 					$value = imap_utf8(trim(implode(':', $data)));
 				}
