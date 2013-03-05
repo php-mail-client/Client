@@ -97,7 +97,7 @@ class Mailbox extends Object implements IMailbox
 			return $this->data->count;
 		} else {
 			$this->using();
-			return $this->data->count = imap_check($this->connection->getConnection())->Nmsgs;
+			return $this->data->count = imap_check($this->getResource())->Nmsgs;
 		}
 	}
 
@@ -146,7 +146,7 @@ class Mailbox extends Object implements IMailbox
 	 */
 	public function update()
 	{
-		$this->data->count = imap_check($this->connection->getConnection())->Nmsgs;
+		$this->data->count = imap_check($this->getResource())->Nmsgs;
 
 		return $this->using();
 	}
@@ -161,7 +161,7 @@ class Mailbox extends Object implements IMailbox
 	{
 		if($this->connection->usingMailbox !== $this->name) {
 			$this->connection->usingMailbox = $this->name;
-			if(!imap_reopen($this->connection->getConnection(), CharsetConverter::convert($this->getFullName(), 'utf-8', 'utf7-imap'))) {
+			if(!imap_reopen($this->getResource(), CharsetConverter::convert($this->getFullName(), 'utf-8', 'utf7-imap'))) {
 				throw new MailException("Cannot open mailbox '{$this->name}'.");
 			}
 		}
