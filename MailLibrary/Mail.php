@@ -71,7 +71,10 @@ class Mail extends Object
 				}));
 				unset($data[0]);
 				if($key === 'subject') {
-					$value = iconv_mime_decode(trim(implode(':', $data)));
+					$value = imap_mime_header_decode(trim(implode(':', $data)));
+					if(isset($value[0]->text)) {
+						$value = $value[0]->text;
+					}
 				} else {
 					$value = imap_utf8(trim(implode(':', $data)));
 				}
@@ -156,8 +159,9 @@ class Mail extends Object
 	 */
 	public function getHeader($name, $need = FALSE)
 	{
-		if(isset($this->data['formattedHeaders'][$name])) {
-			return $this->data['formattedHeaders'][$name];
+		$this->initializeHeaders();
+		if(isset($this->data['headers'][$name])) {
+			return $this->data['headers'][$name];
 		} else {
 			if($need) {
 				throw new MailException("Header '$name' not found.");
@@ -176,8 +180,8 @@ class Mail extends Object
 	public function &__get($name)
 	{
 		$this->initializeHeaders();
-		if(isset($this->data['headers'][$name])) {
-			return $this->data['headers'][$name];
+		if(isset($this->data['formattedHeaders'][$name])) {
+			return $this->data['formattedHeaders'][$name];
 		} else {
 			return parent::__get($name);
 		}
