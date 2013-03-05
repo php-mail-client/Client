@@ -66,7 +66,7 @@ class Connection extends Object implements IConnection
 	 *
 	 * @return resource
 	 */
-	public function getConnection()
+	public function getResource()
 	{
 		return $this->connection;
 	}

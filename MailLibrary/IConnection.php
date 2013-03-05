@@ -12,4 +12,6 @@ namespace greeny\MailLib;
 interface IConnection
 {
 	public function getConnection();
+	public function getMailboxes();
+	public function getMailbox($name);
 }

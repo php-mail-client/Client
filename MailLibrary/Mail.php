@@ -14,6 +14,33 @@ use Nette\Object,
  */
 class Mail extends Object
 {
+	const ORDER_DATE = SORTDATE;
+	const ORDER_ARRIVAL = SORTARRIVAL;
+	const ORDER_FROM = SORTFROM;
+	const ORDER_SUBJECT = SORTSUBJECT;
+	const ORDER_TO = SORTTO;
+	const ORDER_CC = SORTCC;
+	const ORDER_SIZE = SORTSIZE;
+
+	const FILTER_ANSWERED = "ANSWERED";
+	const FILTER_BCC = "BCC [S]";
+	const FILTER_BEFORE = "BEFORE [D]";
+	const FILTER_BODY = "BODY [S]";
+	const FILTER_CC = "CC [S]";
+	const FILTER_DELETED = "DELETED";
+	const FILTER_FLAGGED = "FLAGGED";
+	const FILTER_FROM = "FROM [S]";
+	const FILTER_KEYWORD = "KEYWORD [S]";
+	const FILTER_NEW = "NEW";
+	const FILTER_OLD = "OLD";
+	const FILTER_RECENT = "RECENT";
+	const FILTER_SEEN = "SEEN";
+	const FILTER_SINCE = "SINCE [D]";
+	const FILTER_SUBJECT = "SUBJECT [S]";
+	const FILTER_TEXT = "TEXT [S]";
+	const FILTER_TO = "TO [S]";
+	const FILTER_NOTKEYWORD = "UNKEYWORD [S]";
+
 	/** @var int */
 	protected $id;
 

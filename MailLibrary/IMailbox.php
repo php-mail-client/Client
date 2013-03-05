@@ -30,5 +30,5 @@ interface IMailbox
 	 *
 	 * @return array of Mail
 	 */
-	public function getMails();
+	public function getAllMails();
 }

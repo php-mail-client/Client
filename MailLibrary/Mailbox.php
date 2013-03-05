@@ -34,6 +34,14 @@ class Mailbox extends Object implements IMailbox
 		$this->data = $data = new ArrayHash();
 	}
 
+	public function getConnection() {
+		return $this->connection;
+	}
+
+	public function getResource() {
+		return $this->connection->getResource();
+	}
+
 	/**
 	 * Returns mailbox name
 	 *
@@ -51,6 +59,31 @@ class Mailbox extends Object implements IMailbox
 	 */
 	public function getFullName() {
 		return $this->connection->getServer().$this->name;
+	}
+
+	public function where($key, $value) {
+		$s = new MailSelection($this);
+		return $s->where($key, $value);
+	}
+
+	public function limit($limit) {
+		$s = new MailSelection($this);
+		return $s->limit($limit);
+	}
+
+	public function offset($offset) {
+		$s = new MailSelection($this);
+		return $s->offset($offset);
+	}
+
+	public function order($key, $order) {
+		$s = new MailSelection($this);
+		return $s->order($key, $order);
+	}
+
+	public function count() {
+		$s = new MailSelection($this);
+		return $s->count();
 	}
 
 	/**
@@ -73,7 +106,7 @@ class Mailbox extends Object implements IMailbox
 	 *
 	 * @return array of Mail
 	 */
-	public function getMails()
+	public function getAllMails()
 	{
 		if(isset($this->data->mails)) {
 			return $this->data->mails;
@@ -101,7 +134,7 @@ class Mailbox extends Object implements IMailbox
 				throw new MailException("Mail with id $id not found.");
 			}
 		} else {
-			$this->getMails();
+			$this->getAllMails();
 			return $this->getMailById($id);
 		}
 	}
