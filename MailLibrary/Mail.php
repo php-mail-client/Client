@@ -70,8 +70,9 @@ class Mail extends Object
 					return ucfirst(substr($matches[0], 1));
 				}));
 				unset($data[0]);
-				if($key === 'subject') {
-					$value = iconv_mime_decode(trim(implode(':', $data)));
+				if($formattedKey === 'subject') {
+					$value = imap_mime_header_decode(trim(implode(':', $data)));
+					$value = $value[0]->text;
 				} else {
 					$value = imap_utf8(trim(implode(':', $data)));
 				}
@@ -156,6 +157,7 @@ class Mail extends Object
 	 */
 	public function getHeader($name, $need = FALSE)
 	{
+		$this->initializeHeaders();
 		if(isset($this->data['headers'][$name])) {
 			return $this->data['headers'][$name];
 		} else {
