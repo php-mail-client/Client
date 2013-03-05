@@ -56,7 +56,7 @@ class MailGetter extends Object implements Iterator, Countable, ArrayAccess
 		$data->port = $port;
 		$data->ssl = $ssl;
 
-		throw new MailException(__CLASS__." is deprecated in 1.1, use greeny\\Mail\\Connection instead.");
+		throw new MailException(__CLASS__." is deprecated in 1.1, use greeny\\MailGetter\\Connection instead.");
 	}
 
 	/**

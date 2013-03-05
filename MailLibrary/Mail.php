@@ -156,8 +156,8 @@ class Mail extends Object
 	 */
 	public function getHeader($name, $need = FALSE)
 	{
-		if(isset($this->data['formattedHeaders'][$name])) {
-			return $this->data['formattedHeaders'][$name];
+		if(isset($this->data['headers'][$name])) {
+			return $this->data['headers'][$name];
 		} else {
 			if($need) {
 				throw new MailException("Header '$name' not found.");
@@ -176,8 +176,8 @@ class Mail extends Object
 	public function &__get($name)
 	{
 		$this->initializeHeaders();
-		if(isset($this->data['headers'][$name])) {
-			return $this->data['headers'][$name];
+		if(isset($this->data['formattedHeaders'][$name])) {
+			return $this->data['formattedHeaders'][$name];
 		} else {
 			return parent::__get($name);
 		}

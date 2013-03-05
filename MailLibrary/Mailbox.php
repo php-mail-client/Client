@@ -80,7 +80,7 @@ class Mailbox extends Object implements IMailbox
 		} else {
 			$this->using()->data->mails = array();
 			for($i = 1; $i <= $this->countMails(); $i++) {
-				$this->data->mails[$i] = new Mail($this->connection, $this->id);
+				$this->data->mails[$i] = new Mail($this->connection, $i);
 			}
 			return $this->data->mails;
 		}
