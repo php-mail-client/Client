@@ -1,4 +1,4 @@
-MailLibrary v. 1.0.0
+MailLibrary v. 1.1.0
 ====================
 
 Installation
@@ -9,27 +9,45 @@ Installation
 Initialize
 ----------
 ```php
-$mails = new MailGetter('username', 'password', 'imap.connection.com', 993, TRUE)
+use greeny\MailLib\Connection;
+
+$connection = new Connection('username', 'password', 'imap.connection.com', 993, TRUE)
 // has parameters $username, $password, $host, $port, $enableSSL
 ```
 
-You now can access all mails:
+Getting mailboxes:
+------------------
+$mailboxes = $connection->getMailboxes();
+foreach($mailboxes as $mailbox) {
+$name = $mailbox->name;
+}
+
+You now also access all mails:
 -----------------------------
 - using foreach:
 
 ```php
-foreach($mails as $id => $mail)
+foreach($mailbox as $id => $mail)
 ```
 
-- directly through id:
+Filtering mails
+---------------
 
 ```php
-$mail = $mails[$id];
+$mailbox->where($filterType, $value)
 ```
 
-*You can also count number of mails using:*
+Filter types are accessible via greeny\MailLib\Mail class:
 ```php
-$count = count($mails);
+$mailbox->where(Mail::FILTER_FROM, "mom@example.com"); // all mails from mom
+```
+
+All filters are in Mail class.
+
+You can use fluent interface:
+
+```php
+$mailbox->where(Mail::FILTER_SUBJECT, "Hello world!")->where(Mail::FILTER_BODY, "Hello Nette!");
 ```
 
 Operations with emails:
@@ -58,16 +76,4 @@ You can get their content:
 $body = $mail->body; //returns HTML body, if not set, returns text body
 $textBody = $mail->textBody;
 $htmlBody = $mail->htmlBody;
-```
-
-Deleting mails
---------------
-You can delete mail using MailGetter $mails variable (NOT using $mail variable).
-```php
-unset($mails[$mailId]);
-```
-
-*All changes are only saved to memory and sent to server in destructor. To send it manually, use:*
-```php
-$mails->flush();
 ```
