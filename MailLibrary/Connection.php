@@ -4,143 +4,103 @@
  * @author Tomáš Blatný
  */
 
-namespace greeny\MailLib;
+namespace greeny\MailLibrary;
 
 use Nette\Object;
+
+use greeny\MailLibrary\Drivers\IDriver;
 
 /**
  * Represents connection to mail server.
  */
-class Connection extends Object implements IConnection
+class Connection extends Object
 {
-	/** @var resource */
-	protected $connection;
+    /** @var string */
+    public static $defaultDriver = "\\greeny\\MailLibrary\\Drivers\\ImapDriver";
 
-	/** @var string */
-	protected $server;
+    /** @var \greeny\MailLibrary\Drivers\IDriver */
+    protected $driver = NULL;
 
-	/** @var array of Mailbox */
-	protected $mailboxes = array();
+    /** @var string */
+    protected $serverName = NULL;
 
-	/** @var string the mailbox, that is currently using */
-	public $usingMailbox;
+    /** @var array */
+    protected $data = array();
 
-	/**
-	 * @param string    $username   username
-	 * @param string    $password   password
-	 * @param string    $host       host (e.g. imap.example.com)
-	 * @param int       $port       port to use (e.g. 992)
-	 * @param bool      $ssl        enable ssl?
-	 * @throws MailException when connection not created
-	 */
-	public function __construct($username, $password, $host, $port, $ssl = TRUE)
+    /** @var array of \greeny\MailLibrary\Selection */
+    protected $mailboxes = array();
+
+    /** @var bool */
+    protected $connected = FALSE;
+
+    /** @var bool */
+    protected $initialized = FALSE;
+
+
+	public function __construct(array $data = array(), IDriver $driver = NULL)
 	{
-		$ssl = $ssl ? '/ssl' : '';
-		$this->server = $server = '{'.$host.':'.$port.'/imap'.$ssl.'}';
-		$this->connect($username, $password, $server);
-
-		$folders = imap_list($connection = $this->connection, $server, '*');
-
-		if(is_array($folders)) {
-			$len = strlen($server);
-			foreach($folders as $folder) {
-				$name = CharsetConverter::convert(substr($folder, $len), 'utf7-imap');
-				$this->mailboxes[$name] = new Mailbox($this, $name);
-			}
-		} else {
-			throw new MailException("No mailboxes found at server '$server'.");
-		}
+        $this->data = $data;
+        $driver = $driver !== NULL ? $driver : new self::$defaultDriver;
+        if(!$driver instanceof IDriver) {
+            throw new InvalidDriverException("Driver must be instance of IDriver.");
+        }
+        $this->driver = $driver;
 	}
 
-	/**
-	 * Flushes changes to server and disconects.
-	 */
-	public function __destruct()
-	{
-		$this->flush()
-			->disconnect();
-	}
+    public function getDriver()
+    {
+        return $this->driver;
+    }
 
-	/**
-	 * Gets connection
-	 *
-	 * @return resource
-	 */
-	public function getResource()
-	{
-		return $this->connection;
-	}
+    public function getServerName()
+    {
+        return $this->serverName;
+    }
 
-	/**
-	 * Gets server string
-	 *
-	 * @return string
-	 */
-	public function getServer()
-	{
-		return $this->server;
-	}
+    public function getMailboxes()
+    {
+        return $this->mailboxes;
+    }
 
-	/**
-	 * Connects to mail server. Internal function, do not call it directly.
-	 *
-	 * @param string    $username   username
-	 * @param string    $password   password
-	 * @param string    $host       imap host string
-	 * @throws MailException when there is an error in connection
-	 * @return \greeny\MailLib\Connection Provides fluent interface.
-	 */
-	protected function connect($username, $password, $host)
-	{
-		if(!$this->connection = @imap_open($host, $username, $password)) { // @ - To allow throwing exceptions
-			throw new MailException("Colud not connect to '$host' using username '$username'.");
-		}
-		return $this;
-	}
+    public function getMailbox($name = 'INBOX')
+    {
+        if(isset($this->initializeMailboxes()->mailbox[$name])) {
+            return $this->mailbox[$name];
+        } else {
+            throw new InvalidMailboxNameException("Mailbox '$name' not found.");
+        }
+    }
 
-	/**
-	 * Disconnects from server.
-	 *
-	 * @return \greeny\MailLib\Connection Provides fluent interface.
-	 */
-	public function disconnect()
-	{
-		imap_close($this->connection);
-		return $this;
-	}
+    public function isConnected()
+    {
+        return (bool) $this->connected;
+    }
 
-	/**
-	 * Flushes changes to server.
-	 *
-	 * @return \greeny\MailLib\Connection Provides fluent interface.
-	 */
-	public function flush()
-	{
-		imap_expunge($this->connection);
-		return $this;
-	}
+    public function isInitialized()
+    {
+        return (bool) $this->initialized;
+    }
 
-	/**
-	 * Returns list of mailboxes
-	 *
-	 * @return array of Mailbox
-	 */
-	public function getMailboxes()
-	{
-		return $this->mailboxes;
-	}
+    protected function connect()
+    {
+        if(!$this->connected) {
+            if(!$this->driver->connect($this->data)) {
+                throw new ConnectionException("Could not connect to mail server.");
+            }
+            $this->serverName = $this->driver->getServerName();
+            $this->connected = TRUE;
+        }
+        return $this;
+    }
 
-	/**
-	 * @param string    $name   name of Mailbox
-	 * @return Mailbox
-	 * @throws MailException whne mailbox not found
-	 */
-	public function getMailbox($name)
-	{
-		if(isset($this->mailboxes[$name])) {
-			return $this->mailboxes[$name];
-		} else {
-			throw new MailException("Mailbox $name doesn't exist.");
-		}
-	}
+    protected function initializeMailboxes()
+    {
+        if(!$this->initialized) {
+            foreach($this->connect()->driver->getMailboxes() as $mailbox) {
+                $this->mailboxes[$mailbox] = new Selection($this);
+            }
+            $this->initialized = TRUE;
+        }
+        return $this;
+    }
 }

@@ -4,7 +4,7 @@
  * @author Tomáš Blatný
  */
 
-namespace greeny\MailLib;
+namespace greeny\MailLibrary;
 
 use Nette\Object;
 use Nette\StaticClassException;
@@ -25,7 +25,7 @@ class CharsetConverter extends Object
 	 */
 	public function __construct()
 	{
-		throw new StaticClassException();
+		throw new StaticClassException("Cannot initialize static class '".__CLASS__."'.");
 	}
 
 	/**

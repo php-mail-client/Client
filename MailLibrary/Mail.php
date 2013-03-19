@@ -4,217 +4,96 @@
  * @author Tomáš Blatný
  */
 
-namespace greeny\MailLib;
+namespace greeny\MailLibrary;
 
-use Nette\Object,
-	Nette\Utils\Strings;
+use Nette\Object;
+use Nette\Utils\Strings;
 
 /**
  * Represents one mail.
  */
 class Mail extends Object
 {
-	const ORDER_DATE = SORTDATE;
-	const ORDER_ARRIVAL = SORTARRIVAL;
-	const ORDER_FROM = SORTFROM;
-	const ORDER_SUBJECT = SORTSUBJECT;
-	const ORDER_TO = SORTTO;
-	const ORDER_CC = SORTCC;
-	const ORDER_SIZE = SORTSIZE;
+    /** @var \greeny\MailLibrary\Connection */
+    protected $connection;
 
-	const FILTER_ANSWERED = "ANSWERED";
-	const FILTER_BCC = "BCC [S]";
-	const FILTER_BEFORE = "BEFORE [D]";
-	const FILTER_BODY = "BODY [S]";
-	const FILTER_CC = "CC [S]";
-	const FILTER_DELETED = "DELETED";
-	const FILTER_FLAGGED = "FLAGGED";
-	const FILTER_FROM = "FROM [S]";
-	const FILTER_KEYWORD = "KEYWORD [S]";
-	const FILTER_NEW = "NEW";
-	const FILTER_OLD = "OLD";
-	const FILTER_RECENT = "RECENT";
-	const FILTER_SEEN = "SEEN";
-	const FILTER_SINCE = "SINCE [D]";
-	const FILTER_SUBJECT = "SUBJECT [S]";
-	const FILTER_TEXT = "TEXT [S]";
-	const FILTER_TO = "TO [S]";
-	const FILTER_NOTKEYWORD = "UNKEYWORD [S]";
+    /** @var int */
+    protected $id;
 
-	/** @var int */
-	protected $id;
+    /** @var array of string key => string value */
+    protected $headers = array();
 
-	/** @var Connection */
-	protected $connection;
+    /** @var array of string key => string value */
+    protected $formattedHeaders = array();
 
-	/** @var MailStructure */
-	protected $structure;
+    /** @var bool */
+    protected $initializedHeaders = FALSE;
 
-	/** @var array */
-	protected $rawData = array(
-		'headers' => NULL,
-	);
+    /** @var \greeny\MailLibrary\Structure */
+    protected $structure;
 
-	/** @var array */
-	protected $data = array(
-		'headers' => array(),
-		'formattedHeaders' => array(),
-	);
+    protected $initializedStructure = FALSE;
 
-	/**
-	 * Mail constructor
-	 *
-	 * @param Connection    $connection  connection to mail server
-	 * @param int           $id          mail id
-	 */
-	public function __construct(Connection $connection, $id)
-	{
-		$this->id = $id;
-		$this->connection = $connection;
-	}
 
-	/**
-	 * Initializes headers for this mail. Internal function, do not call directly.
-	 *
-	 * @return Mail Provides fluent interface.
-	 */
-	protected function initializeHeaders()
-	{
-		if(!$this->rawData['headers']) {
-			$this->rawData['headers'] = $headers = imap_fetchheader($this->getResource(), $this->id);
-			$h = Strings::split($headers, "#\r?\n#");
-			for($i = count($h) - 1; $i >= 0; $i--) {
-				if(substr($h[$i], 0, 1) === ' ') {
-					$h[$i-1] .= $h[$i];
-					unset($h[$i]);
-				}
-			}
+    public function __construct(Connection $connection, $id)
+    {
+        $this->connection = $connection;
+        $this->id = $id;
+    }
 
-			foreach($h as $header) {
-				$data = explode(":", $header);
-				$key = $data[0];
-				$formattedKey = lcfirst(Strings::replace($key, "~-.~", function($matches){
-					return ucfirst(substr($matches[0], 1));
-				}));
-				unset($data[0]);
-				if($formattedKey === 'subject') {
-					$value = imap_mime_header_decode(trim(implode(':', $data)));
-					if(isset($value[0]->text)) {
-						$value = $value[0]->text;
-					}
-				} else {
-					$value = imap_utf8(trim(implode(':', $data)));
-				}
-				$this->data['headers'][$key] = $value;
-				$this->data['formattedHeaders'][$formattedKey] = $value;
-			}
-		}
+    public function getId()
+    {
+        return $this->id;
+    }
 
-		return $this;
-	}
+    public function getHeader($key, $default = NULL, $need = FALSE)
+    {
+        if(isset($this->headers[$key])) {
+            return $this->headers[$key];
+        } elseif($need === TRUE) {
+            throw new InvalidHeaderKeyException("Header '$key' not found.");
+        } else {
+            return $default;
+        }
+    }
 
-	/**
-	 * Getter for mail id.
-	 *
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
+    public function getFormattedHeader($key, $default = NULL, $need = FALSE)
+    {
+        if(isset($this->formattedHeaders[$key])) {
+            return $this->formattedHeaders[$key];
+        } elseif($need === TRUE) {
+            throw new InvalidHeaderKeyException("Formatted header '$key' not found.");
+        } else {
+            return $default;
+        }
+    }
 
-	public function getResource() {
-		return $this->connection->getResource();
-	}
+    protected function initializeHeaders()
+    {
+        if(!$this->initializedHeaders) {
+            $this->setHeaders($this->connection->getDriver()->getMailHeaders($this->id))->initializedHeaders = TRUE;
+        }
+    }
 
-	/**
-	 * Initializes structure for this mail. Internal function, do not call directly.
-	 *
-	 * @return Mail Provides fluent interface.
-	 */
-	protected function initializeStructure()
-	{
-		if(!$this->structure) {
-			$this->structure = new MailStructure($this->getResource(), $this->id);
-		}
-		return $this;
-	}
+    protected function setHeaders(array $headers)
+    {
+        foreach($headers as $key => $header) {
+            $this->formattedHeaders[$this->formatHeaderName($key)] = $this->headers[$key] = $header;
+        }
+        return $this;
+    }
 
-	/**
-	 * Body getter
-	 *
-	 * @return string
-	 */
-	public function getBody()
-	{
-		return ($body = $this->getHtmlBody()) === '' ? $this->getTextBody() : $body;
-	}
+    protected function formatHeaderName($header)
+    {
+        return lcfirst(trim(Strings::replace($header, "~-.~", function($matches){
+            return ucfirst(substr($matches[0], 1));
+        })));
+    }
 
-	/**
-	 * Text body getter
-	 *
-	 * @return string
-	 */
-	public function getTextBody()
-	{
-		return $this->initializeStructure()->getStructure()->getText();
-	}
-
-	/**
-	 * HTML body getter
-	 *
-	 * @return string
-	 */
-	public function getHtmlBody()
-	{
-		return $this->initializeStructure()->getStructure()->getHtml();
-	}
-
-	/**
-	 * MailStructure getter
-	 *
-	 * @return MailStructure
-	 */
-	public function getStructure()
-	{
-		return $this->initializeStructure()->structure;
-	}
-
-	/**
-	 * Getter for headers
-	 *
-	 * @param string    $name   Header name
-	 * @param bool      $need   Throw exception if not found?
-	 * @return string
-	 * @throws MailException When $need === TRUE and header not found.
-	 */
-	public function getHeader($name, $need = FALSE)
-	{
-		$this->initializeHeaders();
-		if(isset($this->data['headers'][$name])) {
-			return $this->data['headers'][$name];
-		} else {
-			if($need) {
-				throw new MailException("Header '$name' not found.");
-			} else {
-				return "";
-			}
-		}
-	}
-
-	/**
-	 * Getter for any header.
-	 *
-	 * @param string    $name   Header name
-	 * @return mixed
-	 */
-	public function &__get($name)
-	{
-		$this->initializeHeaders();
-		if(isset($this->data['formattedHeaders'][$name])) {
-			return $this->data['formattedHeaders'][$name];
-		} else {
-			return parent::__get($name);
-		}
-	}
+    protected function initializeStructure()
+    {
+        if(!$this->initializedStucure) {
+            $this->structure = new Structure($this->connection, $this->id);
+        }
+    }
 }
