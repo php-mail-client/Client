@@ -23,9 +23,6 @@ class Mail extends Object
     /** @var array of string key => string value */
     protected $headers = array();
 
-    /** @var array of string key => string value */
-    protected $formattedHeaders = array();
-
     /** @var bool */
     protected $initializedHeaders = FALSE;
 
@@ -59,8 +56,9 @@ class Mail extends Object
 
     public function getFormattedHeader($key, $default = NULL, $need = FALSE)
     {
-        if(isset($this->formattedHeaders[$key])) {
-            return $this->formattedHeaders[$key];
+        $key = $this->formatHeaderName($key);
+        if(isset($this->headers[$key])) {
+            return $this->headers[$key];
         } elseif($need === TRUE) {
             throw new InvalidHeaderKeyException("Formatted header '$key' not found.");
         } else {
@@ -77,9 +75,7 @@ class Mail extends Object
 
     protected function setHeaders(array $headers)
     {
-        foreach($headers as $key => $header) {
-            $this->formattedHeaders[$this->formatHeaderName($key)] = $this->headers[$key] = $header;
-        }
+        $this->headers = $headers;
         return $this;
     }
 

@@ -6,10 +6,12 @@
 
 namespace greeny\MailLibrary;
 
+use Nette\FreezableObject;
+
 /**
  * Represents group of mails, that can be ordered, filtered and paginated
  */
-class Selection
+class Selection extends FreezableObject
 {
     /** @var \greeny\MailLibrary\Connection */
     protected $connection;
@@ -17,17 +19,23 @@ class Selection
     /** @var \greeny\MailLibrary\Filter */
     protected $filter;
 
-    /** @var bool */
-    protected $locked = FALSE;
-
     /** @var array of Mails */
     protected $mails = array();
 
+    /** @var string */
+    protected $name;
 
-    public function __construct(Connection $connection, Filter $filter = NULL)
+
+    public function __construct(Connection $connection, $name, Filter $filter = NULL)
     {
         $this->connection = $connection;
         $this->filter = $filter !== NULL ? $filter : new Filter;
+        $this->name = $name;
+    }
+
+    public function getName()
+    {
+        return $this->name;
     }
 
     public function where($key, $value = NULL)
@@ -51,7 +59,12 @@ class Selection
 
     public function getMailIds()
     {
-        return array_keys($this->loadMails()->mails);
+        return array_keys($this->getAllMails());
+    }
+
+    public function getAllMails()
+    {
+        return $this->loadMails()->mails;
     }
 
     public function getMailById($id)
@@ -68,15 +81,9 @@ class Selection
         return count($this->loadMails()->mails);
     }
 
-    /*public function merge(Selection $selection)
-    {
-        $this->checkLocked();
-        return new Selection($this->connection, $this->filter->merge($selection->filter));
-    }*/
-
     protected function loadMails()
     {
-        if(!$this->locked) {
+        if(!$this->isFrozen()) {
             $this->lock()->mails = $this->connection->getDriver()->getMails($this->filter);
         }
         return $this;
@@ -84,15 +91,13 @@ class Selection
 
     protected function lock()
     {
-        $this->locked = FALSE;
+        $this->freeze();
         return $this;
     }
 
     protected function checkLocked()
     {
-        if($this->locked) {
-            throw new LockedSelectionException("You cannot modify Selection when you have already fetched mails.");
-        }
+        $this->updating();
         return $this;
     }
 }

@@ -31,7 +31,7 @@ class Structure extends Object
     const ENCODING_BASE64 = 3;
     const ENCODING_QUOTED_PRINTABLE = 4;
     const ENCODING_OTHER = 5;
-    
+
     /** @var \greeny\MailLibrary\Connection */
     protected $connection;
 
@@ -136,7 +136,7 @@ class Structure extends Object
         if($this->data['media'] !== NULL) {
             return $this->data['media'];
         } else {
-            return $this->data['media'] = $this->connection->getDriver()->getMedia($this, $this->dataIds['mails']);
+            return $this->data['media'] = $this->connection->getDriver()->getMedia($this, $this->dataIds['media']);
         }
     }
 

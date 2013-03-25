@@ -31,13 +31,4 @@ class Filter extends Object
     {
         return $this->conditions;
     }
-
-    /*public function merge(Filter $filter)
-    {
-        $result = new Filter;
-        foreach($this->getConditions() + $filter->getConditions() as $condition) {
-            $result->addCondition($condition['key'], $condition['value']);
-        }
-        return $result;
-    }*/
 }

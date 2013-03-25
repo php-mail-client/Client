@@ -37,15 +37,15 @@ class Connection extends Object
     protected $initialized = FALSE;
 
 
-	public function __construct(array $data = array(), IDriver $driver = NULL)
-	{
+    public function __construct(array $data = array(), IDriver $driver = NULL)
+    {
         $this->data = $data;
         $driver = $driver !== NULL ? $driver : new self::$defaultDriver;
         if(!$driver instanceof IDriver) {
             throw new InvalidDriverException("Driver must be instance of IDriver.");
         }
         $this->driver = $driver;
-	}
+    }
 
     public function getDriver()
     {
