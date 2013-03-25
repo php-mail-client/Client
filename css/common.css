@@ -1,1 +1,9 @@
 /* basic css */
+.left-menu {
+    position: fixed;
+}
+
+.left-menu i {
+    position: absolute;
+    right: 8px;
+}

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang='en'>
+<html lang='en' xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,31 +8,226 @@
 
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/bootstrap-responsive.css" rel="stylesheet">
-    <link href="css/common.css" rel="stylesheet">
+    <link href="css/common.css?v=1" rel="stylesheet">
 
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/common.js"></script>
 </head>
-<body style="margin: 40px;">
+<body style="margin-top: 60px;">
 <div class="navbar navbar-fixed-top navbar-inverse">
     <div class="navbar-inner">
         <div class="container">
-            <!-- navbar -->
+            <a class="brand" href="http://github.com/greeny/MailLibrary">MailLibrary on GitHub</a>
+
+            <ul class="nav">
+                <li class="divider-vertical"></li>
+                <li class="active"><a href="">Tutorial</a></li>
+            </ul>
         </div>
     </div>
 </div>
 <div class="container-fluid">
     <div class="row-fluid">
-        <div class="span2">
-            <div data-spy="affix" data-offset-top="200" id="affix">
-                <ul>
-                    <li><a href="#">Test</a></li>
-                </ul>
-            </div>
+        <div class="span3">
+            <ul style="position: fixed;" class="span3 left-menu nav nav-tabs nav-stacked">
+                <li><a href="#1"><i class="icon-chevron-right"></i>What is MailLibrary?</a></li>
+                <li><a href="#2"><i class="icon-chevron-right"></i>Features</a></li>
+                <li><a href="#3"><i class="icon-chevron-right"></i>First steps</a></li>
+                <li><a href="#4"><i class="icon-chevron-right"></i>Operating with mailboxes</a></li>
+                <li><a href="#5"><i class="icon-chevron-right"></i>Filtering selection</a></li>
+                <li><a href="#6"><i class="icon-chevron-right"></i>Finally, working with mails</a></li>
+                <!--<li><a href="#7"><i class="icon-chevron-right"></i>7 </a></li>
+                <li><a href="#8"><i class="icon-chevron-right"></i>8 </a></li>
+                <li><a href="#9"><i class="icon-chevron-right"></i>9 </a></li>
+                <li><a href="#10"><i class="icon-chevron-right"></i>10 </a></li>
+                <li><a href="#11"><i class="icon-chevron-right"></i>11 </a></li>-->
+            </ul>
         </div>
-        <div class="span10">
+        <div class="span9" style="margin-top: -60px;">
+            <a name="1">Heading</a>
+            <br><br><br>
 
+            <a href="#1"><h2>What is MailLibrary?</h2></a>
+            <a name="2"></a>
+            <b>MailLibrary</b> is <a href="http://php.net">PHP</a> library built on <a href="http://nette.org">Nette Framework</a>,
+            that can be used for downloading mails from mail server.
+
+            <a href="#2"><h2>Features</h2></a>
+
+            <dl>
+                <dt>Drivers</dt>
+                <dd>You can choose, which driver you will use. If you are not friendly with <a href="http://php.net/IMAP">IMAP</a>,
+                    use POP3 or plain sockets.</dd>
+
+                <dt>Connecting</dt>
+                <dd>You don't have to connect manually or check if connected, MailLibrary solves everything for you.</dd>
+
+                <dt>Lazy emails</dt>
+                <dd>Don't be afraid that your mail server will be spammed with tons of commands and you will receive gigabytes of
+                unneeded data just because you want one header. Everything is loaded at the time of first use.</dd>
+
+                <dt>Mailboxes</dt>
+                <dd>Operating with mailboxes in plain PHP is hard, when you are for example downloading mails from two mailboxes,
+                you must remember to switch between them every time. MailLibrary switches mailboxes automatically. You can also easily
+                create, rename or delete mailboxes as you want.</dd>
+
+                <dt>Filtering</dt>
+                <dd>If you know Nette Framework, you know that there is very nice database layer. Providing fluent interface,
+                you can easily filter rows. I have inspired myself from that and created a very similar-looking layer, that
+                allows you to filter mails like rows in database. No emails are fetched till you request for them.</dd>
+
+                <dt>Mails</dt>
+                <dd>If you ever worked with mails, you know, that parsing email body and headers is very robust code. You
+                must find, what encoding is used, decode it, convert charset to UTF-8, etc, etc. With MailLibrary, everything
+                like this collapse in only one line to get header and one line to get body.</dd>
+
+                <dt>Attachments</dt>
+                <dd>Getting attachment and saving it to server directory is with MailLibrary as easy as pie. With only one line
+                of code you gain full control of attachments.</dd>
+
+                <dt>Extendable</dt>
+                <a name='3'></a>
+                <dd>If you want, you can write your own driver, that for example downloads mails from database and synchnorizes
+                them with mail server. Every function, that manipulates with emails, is located in driver.</dd>
+            </dl>
+
+            <a href="#3"><h2>First steps</h2></a>
+
+            We'll start with creating chosen driver. A driver is class implementing
+            <code>greeny\MailLibrary\Drivers\IDriver</code> interface.
+            In this tutorial, i have chosen <code>greeny\MailLibrary\Drivers\ImapDriver</code>.
+            <br><br>
+            <code>ImapDriver</code> requires parameters <code>$username</code>, <code>$password</code>, <code>$host</code>,
+            <code>$port</code> and optional parameter <code>$ssl</code>, which, if set to <code>TRUE</code>, secures our connection.
+
+            <br><br><pre>
+use greeny\MailLibrary\Drivers\ImapDriver;
+
+$driver = new ImapDriver('john', 'doe', 'mail.example.com', 993, TRUE); // John Doe wants secured connection</pre>
+
+            Now when we have driver, we will create new connection controller. It's class <code>greeny\MailLibrary\Connection</code>
+            and requires one parameter, <code>IDriver</code>. Luckily, we just have one driver created, so creating connection
+            is easy.
+
+            <br><br><pre>
+use greeny\MailLibrary\Connection;
+
+$connection = new Connection($driver);</pre>
+
+            And that's all, we have set it up correctly!<br>
+
+            <div class="alert alert-warning"><a name="4"></a><b>Warning!</b> Do not call Driver classes directly, every it's class can and should be called using
+            other classes.</div>
+
+            <a name="4" href="#4"><h2>Operating with mailboxes</h2></a>
+
+            If you don't know, what mailbox is, it doesn't matter. For standard user, mailbox is like folder to which are mails
+            filtered. Examples of mailboxes are Inbox, Spam, Sent, etc.<br><br>
+
+            With connection already set, we can easily manipulate with mailboxes.
+            <ul>
+                <li><code>$connection->getMailboxes()</code> returns associative array name => mailbox,</li>
+                <li><code>$mailbox = $connection->getMailbox('Inbox')</code> returns mailbox named 'Inbox',</li>
+                <li><code>$mailbox = $connection->createMailbox('My mailbox');</code> creates mailbox 'My mailbox',</li>
+                <li><code>$mailbox->rename('My epic mailbox');</code> renames mailbox to 'My epic mailbox',</li>
+                <li><code>$mailbox->delete();</code><a name="5"></a> deletes mailbox.</li>
+            </ul>
+
+            <a href="#5"><h2>Filtering selection</h2></a>
+
+            As mentioned above, filtering mails is almost the same as filtering rows in <code>Nette\Database</code>.<br>
+            We just must have <code>$mailbox</code> variable, that contains required mailbox (instance of
+            <code>greeny\MailLibrary\Selection</code> - selection is filtered list of mails, default filtering is by mailbox).<br><br>
+            We can get this variable from connection from method <code>getMailboxes()</code> (returned as associative array
+            mailbox name => selection) or from method <code>getMailbox($name)</code>.<br><br>
+            <div class='alert alert-info'>
+                <b>Info:</b> <code>Selection</code> is also returned by methods <code>createMailbox()</code> and <code>renameMailbox()</code>.
+            </div><br>
+            Now we can filter mails from this mailbox:
+            <pre>
+use greeny\MailLibrary\Mail;
+
+$mailbox
+    ->where("from", 'mom@example.com')
+    ->where("subject", 'Hello son!')
+    ->order("received", 'DESC')
+    ->limit(10)
+    ->offset(5);
+            </pre>
+            This code will:
+            <ul>
+                <li>find all mails from 'mom@example.com' with subject 'Hello son!'</li>
+                <li>orders mails by received time, descending</li>
+                <li>fetch only first 10 mails with offset 5 (like in SQL)</li>
+            </ul>
+            <a name="6"></a>Now the <code>$mailbox</code> contains all these filters, limits, offsets, etc. In next paragraph,
+            we will get mails from it.
+
+            <a href="#6"><h2>Finally, working with mails</h2></a>
+
+            You now have <code>$mailbox</code> variable, possibly filtered (but it's not required) and you want to get mails from it.<br>
+
+            The most intuitive way is to use foreach:
+            <pre>
+foreach($mailbox as $mail) {
+    // do something with $mail
+}</pre>
+
+            If you want, you can also call <code>$mails = $mailbox->getAllMails()</code>, which returns array where keys are IDs and
+            values are mails.
+            <br><br>
+            The third way to get mails is to use <code>$mail = $mailbox->getMailById($id)</code>, that returns mail with that ID.<br>
+            And where to get IDs? <code>$ids = $mailbox->getMailIds()</code> solves it (returns array).
+            <br><br>
+            With <code>$mail</code> (instance of <code>greeny\MailLibrary\Mail</code>) we can now access all mail's properties:
+            <ul>
+                <li><code>$mail->getHeader('X-Request-From')</code> gets header</li>
+                <li><code>$mail->getFormattedHeader('xRequestFrom')</code> does the same</li>
+                <li><code>$mail->xRequestFrom</code> uses the same formatting as <code>getFormattedHeader()</code></li>
+                <li><code>$mail->getBody()</code> returns HTML body (if not available, returns text body)</li>
+                <li><code>$mail->getHtmlBody()</code> and <code>$mail->getTextBody()</code> does what they say</li>
+                <li><code>$mail->getAttachments()</code> - gets array of attachments (will be mentioned later)</li>
+            </ul>
+
+            You can also modify mail's parent mailbox:
+            <ul>
+                <li><code>$mail->moveTo($name)</code> or <code>$mail->copyTo($name)</code>, where $name is name of mailbox
+                (you can get it using <code>$mailbox->getName()</code>)</li>
+                <li><code>$mail->delete()</code> deletes mail.</li>
+            </ul>
+
+            Another feature is setting flags to mail. There are 5 flags, that can be set (each to TRUE or FALSE):
+            <ul>
+                <li><code>Mail::FLAG_SEEN</code></li>
+                <li><code>Mail::FLAG_FLAGGED</code></li>
+                <li><code>Mail::FLAG_ANSWERED</code></li>
+                <li><code>Mail::FLAG_DELETED</code></li>
+                <li><code>Mail::FLAG_DRAFT</code></li>
+            </ul>
+
+            For setting flags, use method <code>$mail->setFlags($flags, $value)</code>.<br>
+            This sets all flags in array <code>$flags</code> to <code>$value</code> (TRUE/FALSE). <code>$flags</code>
+            can be also only one flag, then you don't have to create an array for it.
+            <br><br>
+            Example: <pre>$mail->setFlags(array(Mail::FLAG_SEEN, Mail::FLAG_DRAFT), TRUE)</pre> sets flags SEEN and DRAFT to TRUE.
+
+            <br><br>
+            <div class="alert alert-warning">
+                <b>Warning!</b> This tutorial isn't finished yet, because there are parts of MailLibrary, that I am working on now.
+            </div>
+
+            <!--<a name="7"></a>
+            <a name="8"></a>
+            <a name="9"></a>
+            <a name="10"></a>
+            <a name="11"></a>-->
+            <div class="footer">
+                <br><div class="nav nav-list"><ul><li class="divider"></li></ul></div><br>
+                Created by <a href="http://github.com/greeny">@greeny</a>, first version of
+                <a href="http://github.com/greeny/MailLibrary">MailLibrary</a>
+                released 3.3.2013 under MIT licence.<br><br>
+            </div>
         </div>
     </div>
 </div>
