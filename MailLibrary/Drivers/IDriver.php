@@ -14,7 +14,8 @@ use greeny\MailLibrary\Structure;
  */
 interface IDriver
 {
-    function connect(array $data);
+    function __construct(array $data);
+    function connect();
 
     function getServerName();
     function getMailboxes();

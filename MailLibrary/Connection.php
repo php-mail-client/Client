@@ -15,17 +15,11 @@ use greeny\MailLibrary\Drivers\IDriver;
  */
 class Connection extends Object
 {
-    /** @var string */
-    public static $defaultDriver = "\\greeny\\MailLibrary\\Drivers\\ImapDriver";
-
     /** @var \greeny\MailLibrary\Drivers\IDriver */
     protected $driver = NULL;
 
     /** @var string */
     protected $serverName = NULL;
-
-    /** @var array */
-    protected $data = array();
 
     /** @var array of \greeny\MailLibrary\Selection */
     protected $mailboxes = array();
@@ -37,13 +31,8 @@ class Connection extends Object
     protected $initialized = FALSE;
 
 
-    public function __construct(array $data = array(), IDriver $driver = NULL)
+    public function __construct(IDriver $driver = NULL)
     {
-        $this->data = $data;
-        $driver = $driver !== NULL ? $driver : new self::$defaultDriver;
-        if(!$driver instanceof IDriver) {
-            throw new InvalidDriverException("Driver must be instance of IDriver.");
-        }
         $this->driver = $driver;
     }
 
@@ -84,7 +73,7 @@ class Connection extends Object
     protected function connect()
     {
         if(!$this->connected) {
-            if(!$this->driver->connect($this->data)) {
+            if(!$this->driver->connect()) {
                 throw new ConnectionException("Could not connect to mail server.");
             }
             $this->serverName = $this->driver->getServerName();
@@ -97,7 +86,7 @@ class Connection extends Object
     {
         if(!$this->initialized) {
             foreach($this->connect()->driver->getMailboxes() as $mailbox) {
-                $this->mailboxes[$mailbox] = new Selection($this);
+                $this->mailboxes[$mailbox] = new Selection($this, $mailbox);
             }
             $this->initialized = TRUE;
         }
