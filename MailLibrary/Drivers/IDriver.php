@@ -30,9 +30,18 @@ interface IDriver
     function getMailHeaders($id);
     function getMailStructure($id);
 
+    function moveMails($target, array $ids);
+    function copyMails($target, array $ids);
+    function deleteMails(array $ids);
+
     function getBody(Structure $structure, $index);
     function getFullBody(Structure $structure, array $indexes);
     function getAttachments(Structure $structure, array $indexes);
     function getAttachedMails(Structure $structure, array $indexes);
     function getMedia(Structure $structure, array $indexes);
+
+    function setMailFlags($id, $flags, $bool);
+
+    function flush();
+    function __destruct();
 }

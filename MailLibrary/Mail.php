@@ -14,11 +14,20 @@ use Nette\Utils\Strings;
  */
 class Mail extends Object
 {
+    const FLAG_SEEN = "\\SEEN";
+    const FLAG_FLAGGED = "\\FLAGGED";
+    const FLAG_ANSWERED = "\\ANSWERED";
+    const FLAG_DELETED = "\\DELETED";
+    const FLAG_DRAFT = "\\DRAFT";
+
     /** @var \greeny\MailLibrary\Connection */
     protected $connection;
 
     /** @var int */
     protected $id;
+
+    /** @var string */
+    protected $mailbox;
 
     /** @var array of string key => string value */
     protected $headers = array();
@@ -32,10 +41,11 @@ class Mail extends Object
     protected $initializedStructure = FALSE;
 
 
-    public function __construct(Connection $connection, $id)
+    public function __construct(Connection $connection, $id, $mailbox)
     {
         $this->connection = $connection;
         $this->id = $id;
+        $this->mailbox = $mailbox;
     }
 
     public function getId()
@@ -43,8 +53,14 @@ class Mail extends Object
         return $this->id;
     }
 
+    public function getMailboxName()
+    {
+        return $this->mailbox;
+    }
+
     public function getHeader($key, $default = NULL, $need = FALSE)
     {
+        $key = $this->formatHeaderName($key);
         if(isset($this->headers[$key])) {
             return $this->headers[$key];
         } elseif($need === TRUE) {
@@ -56,7 +72,6 @@ class Mail extends Object
 
     public function getFormattedHeader($key, $default = NULL, $need = FALSE)
     {
-        $key = $this->formatHeaderName($key);
         if(isset($this->headers[$key])) {
             return $this->headers[$key];
         } elseif($need === TRUE) {
@@ -64,6 +79,32 @@ class Mail extends Object
         } else {
             return $default;
         }
+    }
+
+    public function copyTo($mailbox)
+    {
+        $this->connection->copyMail($this->mailbox, $this->id, $mailbox);
+        return $this;
+    }
+
+    public function moveTo($mailbox)
+    {
+        $this->connection->moveMail($this->mailbox, $this->id, $mailbox);
+        return NULL;
+    }
+
+    public function delete()
+    {
+        $this->connection->deleteMail($this->mailbox, $this->id);
+        return NULL;
+    }
+
+    public function setFlags($flags, $bool = TRUE)
+    {
+        if(!is_array($flags)) {
+            $flags = array($flags);
+        }
+        $this->connection->setMailFlags($this->mailbox, $this->id, $flags, $bool);
     }
 
     protected function initializeHeaders()
@@ -75,7 +116,9 @@ class Mail extends Object
 
     protected function setHeaders(array $headers)
     {
-        $this->headers = $headers;
+        foreach($headers as $key => $header) {
+            $this->headers[$this->formatHeaderName($key)] = $header;
+        }
         return $this;
     }
 

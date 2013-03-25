@@ -96,7 +96,11 @@ class Selection extends FreezableObject
     {
         $this->using();
         if(!$this->isFrozen()) {
-            $this->lock()->mails = $this->connection->getDriver()->getMails($this->filter);
+            $this->lock();
+            $mails = $this->connection->getDriver()->getMails($this->filter);
+            foreach($mails as $mail) {
+                $this->mails[$mail] = new Mail($this->connection, $mail, $this->name);
+            }
         }
         return $this;
     }

@@ -79,6 +79,8 @@ class Connection extends Object
             $this->driver->using($name);
             $this->usedMailbox = $name;
         }
+
+        return $this;
     }
 
     public function createMailbox($name)
@@ -119,6 +121,45 @@ class Connection extends Object
         }
         unset($this->mailboxes[$name]);
         return $this;
+    }
+
+    public function moveMail($from, $id, $to)
+    {
+        if($from === $to) {
+            throw new InvalidMailboxNameException("Cannot move mail to mailbox, where it is.");
+        }
+
+        $this->using($from);
+        $this->driver->moveMails($to, array($id));
+        return $this;
+    }
+
+    public function copyMail($from, $id, $to)
+    {
+        if($from === $to) {
+            throw new InvalidMailboxNameException("Cannot copy mail to mailbox, where it is.");
+        }
+
+        $this->using($from);
+        $this->driver->copyMails($to, array($id));
+        return $this;
+    }
+
+    public function deleteMail($from, $id)
+    {
+        $this->using($from)->driver->deleteMails(array($id));
+        return $this;
+    }
+
+    public function flush()
+    {
+        $this->driver->flush();
+        return $this;
+    }
+
+    public function setMailFlags($mailbox, $id, $flag, $bool)
+    {
+        $this->using($mailbox)->driver->setMailFlags($id, $flag, $bool);
     }
 
     protected function connect()
