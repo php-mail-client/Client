@@ -30,6 +30,9 @@ class Connection extends Object
     /** @var bool */
     protected $initialized = FALSE;
 
+    /** @var string */
+    protected $usedMailbox = NULL;
+
 
     public function __construct(IDriver $driver = NULL)
     {
@@ -68,6 +71,54 @@ class Connection extends Object
     public function isInitialized()
     {
         return (bool) $this->initialized;
+    }
+
+    public function using($name)
+    {
+        if($name !== $this->usedMailbox) {
+            $this->driver->using($name);
+            $this->usedMailbox = $name;
+        }
+    }
+
+    public function createMailbox($name)
+    {
+        if(!$this->driver->createMailbox($name)) {
+            throw new DriverException("Mailbox '$name' couldn't be created.");
+        }
+        return $this->mailboxes[$name] = new Selection($this, $name);
+    }
+
+    public function renameMailbox($from, $to)
+    {
+        if(!isset($this->mailboxes[$from])) {
+            throw new InvalidMailboxNameException("Mailbox '$from' not found.");
+        }
+        if(isset($this->mailboxes[$to])) {
+            throw new InvalidMailboxNameException("Mailbox '$to' already exists.");
+        }
+
+        if(!$this->driver->renameMailbox($from, $to)) {
+            throw new DriverException("Mailbox '$from' could not be renamed.");
+        }
+
+        $this->mailboxes[$to] = new Selection($this, $to);
+
+        unset($this->mailboxes[$from]);
+
+        return $this->mailboxes[$to];
+    }
+
+    public function deleteMailbox($name)
+    {
+        if(!isset($this->mailboxes[$name])) {
+            throw new InvalidMailboxNameException("Mailbox '$name' not found.");
+        }
+        if($this->driver->deleteMailbox($name)) {
+            throw new DriverException("Mailbox '$name' could not be deleted.");
+        }
+        unset($this->mailboxes[$name]);
+        return $this;
     }
 
     protected function connect()

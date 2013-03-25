@@ -38,6 +38,17 @@ class Selection extends FreezableObject
         return $this->name;
     }
 
+    public function rename($to)
+    {
+        return $this->connection->renameMailbox($this->name, $to);
+    }
+
+    public function delete()
+    {
+        $this->connection->deleteMailbox($this->name);
+        return NULL;
+    }
+
     public function where($key, $value = NULL)
     {
         $this->checkLocked()->filter->addCondition($key, $value);
@@ -83,6 +94,7 @@ class Selection extends FreezableObject
 
     protected function loadMails()
     {
+        $this->using();
         if(!$this->isFrozen()) {
             $this->lock()->mails = $this->connection->getDriver()->getMails($this->filter);
         }
@@ -98,6 +110,13 @@ class Selection extends FreezableObject
     protected function checkLocked()
     {
         $this->updating();
+        $this->using();
+        return $this;
+    }
+
+    protected function using()
+    {
+        $this->connection->using($this->name);
         return $this;
     }
 }

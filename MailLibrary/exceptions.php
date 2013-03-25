@@ -26,3 +26,5 @@ class InvalidDriverException extends MailException {}
 class InvalidHeaderKeyException extends MailException {}
 
 class InvalidStructureIndexException extends MailException {}
+
+class DriverException extends MailException {}

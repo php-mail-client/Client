@@ -10,7 +10,7 @@ use greeny\MailLibrary\Filter;
 use greeny\MailLibrary\Structure;
 
 /**
- * Interface for any driver
+ * Interface for any driver, that operates with mailboxes
  */
 interface IDriver
 {
@@ -19,6 +19,12 @@ interface IDriver
 
     function getServerName();
     function getMailboxes();
+
+    function using($name);
+
+    function createMailbox($name);
+    function renameMailbox($from, $to);
+    function deleteMailbox($name);
 
     function getMails(Filter $filter);
     function getMailHeaders($id);
