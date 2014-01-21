@@ -5,6 +5,7 @@
 
 namespace greeny\MailLibrary\Drivers;
 
+use greeny\MailLibrary\ContactList;
 use greeny\MailLibrary\DriverException;
 use greeny\MailLibrary\Mail;
 use DateTime;
@@ -46,6 +47,13 @@ class ImapDriver implements IDriver
 		Mail::SUBJECT => 'SUBJECT "%s"',
 		Mail::TEXT => 'TEXT "%s"',
 		Mail::TO => 'TO "%s"',
+	);
+
+	protected static $contactHeaders = array(
+		'to',
+		'from',
+		'cc',
+		'bcc',
 	);
 
 	public function __construct($username, $password, $host, $port = 993, $ssl = TRUE)
@@ -244,6 +252,13 @@ class ImapDriver implements IDriver
 				}
 
 				$headers[$key] = trim($text);
+			} else if(in_array(strtolower($key), self::$contactHeaders)) {
+				$contacts = imap_rfc822_parse_adrlist(imap_utf8(trim($header)), 'UNKNOWN_HOST');
+				$list = new ContactList();
+				foreach($contacts as $contact) {
+					$list->addContact($contact->mailbox, $contact->host, $contact->personal, $contact->adl);
+				}
+				$headers[$key] = $list;
 			} else {
 				$headers[$key] = trim(imap_utf8($header));
 			}

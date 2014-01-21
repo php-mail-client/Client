@@ -38,16 +38,6 @@ class Mail {
 	/** @var array */
 	protected $headers = NULL;
 
-	protected static $contactHeaders = array(
-		'to',
-		'from',
-		'cc',
-		'bcc',
-		'replyTo',
-		'deliveredTo',
-		'returnPath',
-	);
-
 	/**
 	 * @param Connection $connection
 	 * @param Mailbox    $mailbox

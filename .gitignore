@@ -1,4 +1,3 @@
-index.php
 vendor/*
 .idea/*
 composer.lock
