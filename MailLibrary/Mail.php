@@ -51,7 +51,6 @@ class Mail {
 		$this->connection = $connection;
 		$this->mailbox = $mailbox;
 		$this->id = $id;
-		$this->structure = $connection->getDriver()->getStructure($id);
 	}
 
 	/**

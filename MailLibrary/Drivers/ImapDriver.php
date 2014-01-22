@@ -296,7 +296,6 @@ class ImapDriver implements IDriver
 				$data = quoted_printable_decode($data);
 			}
 
-
 			$body[] = $data;
 		}
 		return implode('\n\n', $body);
