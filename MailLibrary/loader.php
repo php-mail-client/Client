@@ -12,6 +12,8 @@ spl_autoload_register(function ($type) {
 		'greeny\maillibrary\selection' => 'Selection.php',
 		'greeny\maillibrary\mail' => 'Mail.php',
 		'greeny\maillibrary\contactlist' => 'ContactList.php',
+		'greeny\maillibrary\structures\istructure' => 'Structures/IStructure.php',
+		'greeny\maillibrary\structures\imapstructure' => 'Structures/ImapStructure.php',
 		'greeny\maillibrary\drivers\idriver' => 'Drivers/IDriver.php',
 		'greeny\maillibrary\drivers\imapdriver' => 'Drivers/ImapDriver.php',
 	);

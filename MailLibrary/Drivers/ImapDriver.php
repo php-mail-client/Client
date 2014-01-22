@@ -7,6 +7,8 @@ namespace greeny\MailLibrary\Drivers;
 
 use greeny\MailLibrary\ContactList;
 use greeny\MailLibrary\DriverException;
+use greeny\MailLibrary\Structures\IStructure;
+use greeny\MailLibrary\Structures\ImapStructure;
 use greeny\MailLibrary\Mail;
 use DateTime;
 
@@ -215,7 +217,7 @@ class ImapDriver implements IDriver
 	 * @param int $mailId
 	 * @return array of name => value
 	 */
-	function getHeaders($mailId)
+	public function getHeaders($mailId)
 	{
 		$raw = imap_fetchheader($this->resource, $mailId, FT_UID);
 		$lines = explode("\n", $raw);
@@ -264,6 +266,40 @@ class ImapDriver implements IDriver
 			}
 		}
 		return $headers;
+	}
+
+	/**
+	 * Creates structure for mail
+	 *
+	 * @param int $mailId
+	 * @return IStructure
+	 */
+	public function getStructure($mailId)
+	{
+		return new ImapStructure($this, imap_fetchstructure($this->resource, $mailId, FT_UID), $mailId);
+	}
+
+	/**
+	 * @param int   $mailId
+	 * @param array $partIds
+	 * @return string
+	 */
+	function getBody($mailId, array $partIds)
+	{
+		$body = array();
+		foreach($partIds as $partId) {
+			$data = ($partId['id'] == 0) ? imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : imap_fetchbody($this->resource, $mailId, $partId['id'], FT_UID | FT_PEEK);
+			$encoding = $partId['encoding'];
+			if($encoding === ImapStructure::ENCODING_BASE64) {
+				$data = base64_decode($data);
+			} else if($encoding === ImapStructure::ENCODING_QUOTED_PRINTABLE) {
+				$data = quoted_printable_decode($data);
+			}
+
+
+			$body[] = $data;
+		}
+		return implode('\n\n', $body);
 	}
 
 	/**

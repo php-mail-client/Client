@@ -18,3 +18,5 @@ class MailboxException extends MailException {}
 class FilterException extends MailException {}
 
 class InvalidFilterValueException extends FilterException {}
+
+class NotImplementedException extends MailException {}

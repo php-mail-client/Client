@@ -38,6 +38,9 @@ class Mail {
 	/** @var array */
 	protected $headers = NULL;
 
+	/** @var \greeny\MailLibrary\Structures\IStructure */
+	protected $structure = NULL;
+
 	/**
 	 * @param Connection $connection
 	 * @param Mailbox    $mailbox
@@ -48,8 +51,15 @@ class Mail {
 		$this->connection = $connection;
 		$this->mailbox = $mailbox;
 		$this->id = $id;
+		$this->structure = $connection->getDriver()->getStructure($id);
 	}
 
+	/**
+	 * Gets header
+	 *
+	 * @param string $name
+	 * @return string
+	 */
 	public function __get($name)
 	{
 		return $this->getHeader($name);
@@ -91,6 +101,42 @@ class Mail {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getBody()
+	{
+		$this->structure !== NULL || $this->initializeStructure();
+		return $this->structure->getBody();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getHtmlBody()
+	{
+		$this->structure !== NULL || $this->initializeStructure();
+		return $this->structure->getHtmlBody();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTextBody()
+	{
+		$this->structure !== NULL || $this->initializeStructure();
+		return $this->structure->getTextBody();
+	}
+
+	/**
+	 * @return Attachment[]
+	 */
+	public function getAttachments()
+	{
+		$this->structure !== NULL || $this->initializeStructure();
+		return $this->structure->getAttachments();
+	}
+
+	/**
 	 * Initializes headers
 	 */
 	protected function initializeHeaders()
@@ -100,6 +146,11 @@ class Mail {
 		foreach($this->connection->getDriver()->getHeaders($this->id) as $key => $value) {
 			$this->headers[$this->formatHeaderName($key)] = $value;
 		}
+	}
+
+	protected function initializeStructure()
+	{
+		$this->structure = $this->connection->getDriver()->getStructure($this->id);
 	}
 
 	/**
