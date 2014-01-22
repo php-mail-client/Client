@@ -57,7 +57,7 @@ class Mail {
 	 * Gets header
 	 *
 	 * @param string $name
-	 * @return string
+	 * @return mixed
 	 */
 	public function __get($name)
 	{

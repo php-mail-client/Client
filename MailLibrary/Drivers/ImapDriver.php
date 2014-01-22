@@ -260,6 +260,7 @@ class ImapDriver implements IDriver
 				foreach($contacts as $contact) {
 					$list->addContact($contact->mailbox, $contact->host, $contact->personal, $contact->adl);
 				}
+				$list->build();
 				$headers[$key] = $list;
 			} else {
 				$headers[$key] = trim(imap_utf8($header));
