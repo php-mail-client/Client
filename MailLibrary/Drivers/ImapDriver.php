@@ -7,6 +7,7 @@ namespace greeny\MailLibrary\Drivers;
 
 use greeny\MailLibrary\ContactList;
 use greeny\MailLibrary\DriverException;
+use greeny\MailLibrary\Mailbox;
 use greeny\MailLibrary\Structures\IStructure;
 use greeny\MailLibrary\Structures\ImapStructure;
 use greeny\MailLibrary\Mail;
@@ -175,7 +176,6 @@ class ImapDriver implements IDriver
 	{
 		$filter = $this->buildFilters($filters);
 
-
 		if(!is_array($ids = imap_sort($this->resource, SORTARRIVAL, 0, SE_UID, $filter, 'UTF-8'))) {
 			throw new DriverException("Cannot get mails: " . imap_last_error());
 		}
@@ -272,12 +272,13 @@ class ImapDriver implements IDriver
 	/**
 	 * Creates structure for mail
 	 *
-	 * @param int $mailId
+	 * @param int     $mailId
+	 * @param Mailbox $mailbox
 	 * @return IStructure
 	 */
-	public function getStructure($mailId)
+	public function getStructure($mailId, Mailbox $mailbox)
 	{
-		return new ImapStructure($this, imap_fetchstructure($this->resource, $mailId, FT_UID), $mailId);
+		return new ImapStructure($this, imap_fetchstructure($this->resource, $mailId, FT_UID), $mailId, $mailbox);
 	}
 
 	/**

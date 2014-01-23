@@ -149,7 +149,8 @@ class Mail {
 
 	protected function initializeStructure()
 	{
-		$this->structure = $this->connection->getDriver()->getStructure($this->id);
+		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
+		$this->structure = $this->connection->getDriver()->getStructure($this->id, $this->mailbox);
 	}
 
 	/**

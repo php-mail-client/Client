@@ -7,6 +7,7 @@ namespace greeny\MailLibrary\Structures;
 
 use greeny\MailLibrary\Attachment;
 use greeny\MailLibrary\Drivers\ImapDriver;
+use greeny\MailLibrary\Mailbox;
 use greeny\MailLibrary\NotImplementedException;
 
 class ImapStructure implements IStructure {
@@ -50,15 +51,20 @@ class ImapStructure implements IStructure {
 	/** @var Attachment[] */
 	protected $attachments = NULL;
 
+	/** @var Mailbox */
+	protected $mailbox;
+
 	/**
 	 * @param ImapDriver $driver
 	 * @param object     $structure
 	 * @param int        $mailId
+	 * @param Mailbox    $mailbox
 	 */
-	public function __construct(ImapDriver $driver, $structure, $mailId)
+	public function __construct(ImapDriver $driver, $structure, $mailId, Mailbox $mailbox)
 	{
 		$this->driver = $driver;
 		$this->id = $mailId;
+		$this->mailbox = $mailbox;
 		if(!isset($structure->parts)) {
 			$this->addStructurePart($structure, '0');
 		} else {
@@ -81,7 +87,12 @@ class ImapStructure implements IStructure {
 	 */
 	public function getHtmlBody()
 	{
-		return $this->htmlBody === NULL ? $this->htmlBody = $this->driver->getBody($this->id, $this->htmlBodyIds) : $this->textBody;
+		if($this->htmlBody === NULL) {
+			$this->driver->switchMailbox($this->mailbox->getName());
+			return $this->htmlBody = $this->driver->getBody($this->id, $this->htmlBodyIds);
+		} else {
+			return $this->htmlBody;
+		}
 	}
 
 	/**
@@ -89,7 +100,12 @@ class ImapStructure implements IStructure {
 	 */
 	public function getTextBody()
 	{
-		return $this->htmlBody === NULL ? $this->htmlBody = $this->driver->getBody($this->id, $this->textBodyIds) : $this->htmlBody;
+		if($this->textBody === NULL) {
+			$this->driver->switchMailbox($this->mailbox->getName());
+			return $this->textBody = $this->driver->getBody($this->id, $this->textBodyIds);
+		} else {
+			return $this->textBody;
+		}
 	}
 
 	/**
@@ -98,6 +114,7 @@ class ImapStructure implements IStructure {
 	 */
 	public function getAttachments()
 	{
+		$this->driver->switchMailbox($this->mailbox->getName());
 		throw new NotImplementedException();
 	}
 

@@ -6,6 +6,7 @@
 namespace greeny\MailLibrary\Drivers;
 
 use greeny\MailLibrary\DriverException;
+use greeny\MailLibrary\Mailbox;
 use greeny\MailLibrary\Structures\IStructure;
 
 interface IDriver {
@@ -82,10 +83,12 @@ interface IDriver {
 
 	/**
 	 * Creates structure for mail
-	 * @param int $mailId
+	 *
+	 * @param int     $mailId
+	 * @param Mailbox $mailbox
 	 * @return IStructure
 	 */
-	function getStructure($mailId);
+	function getStructure($mailId, Mailbox $mailbox);
 
 	/**
 	 * @param int   $mailId
