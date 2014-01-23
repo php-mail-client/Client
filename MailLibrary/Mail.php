@@ -26,6 +26,12 @@ class Mail {
 	const TEXT = 'TEXT';
 	const TO = 'TO';
 
+	const FLAG_ANSWERED = "\\ANSWERED";
+	const FLAG_DELETED = "\\DELETED";
+	const FLAG_DRAFT = "\\DRAFT";
+	const FLAG_FLAGGED = "\\FLAGGED";
+	const FLAG_SEEN = "\\SEEN";
+
 	/** @var \greeny\MailLibrary\Connection */
 	protected $connection;
 
@@ -41,6 +47,9 @@ class Mail {
 	/** @var \greeny\MailLibrary\Structures\IStructure */
 	protected $structure = NULL;
 
+	/** @var array */
+	protected $flags = NULL;
+
 	/**
 	 * @param Connection $connection
 	 * @param Mailbox    $mailbox
@@ -51,6 +60,12 @@ class Mail {
 		$this->connection = $connection;
 		$this->mailbox = $mailbox;
 		$this->id = $id;
+	}
+
+	public function __isset($name)
+	{
+		$this->headers !== NULL || $this->initializeHeaders();
+		return isset($this->headers[$this->formatHeaderName($name)]);
 	}
 
 	/**
@@ -136,6 +151,52 @@ class Mail {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getFlags()
+	{
+		$this->flags !== NULL || $this->initializeFlags();
+		return $this->flags;
+	}
+
+	public function setFlags(array $flags, $autoFlush = FALSE)
+	{
+		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
+		foreach(array(
+			Mail::FLAG_ANSWERED,
+			Mail::FLAG_DELETED,
+			Mail::FLAG_DELETED,
+			Mail::FLAG_FLAGGED,
+			Mail::FLAG_SEEN,
+		) as $flag) {
+			if(isset($flags[$flag])) {
+				$this->connection->getDriver()->setFlag($this->id, $flag, $flags[$flag]);
+			}
+		}
+		if($autoFlush) {
+			$this->connection->getDriver()->flush();
+		}
+	}
+
+	public function move($toMailbox)
+	{
+		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
+		$this->connection->getDriver()->moveMail($this->id, $toMailbox);
+	}
+
+	public function copy($toMailbox)
+	{
+		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
+		$this->connection->getDriver()->copyMail($this->id, $toMailbox);
+	}
+
+	public function delete()
+	{
+		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
+		$this->connection->getDriver()->deleteMail($this->id);
+	}
+
+	/**
 	 * Initializes headers
 	 */
 	protected function initializeHeaders()
@@ -151,6 +212,12 @@ class Mail {
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		$this->structure = $this->connection->getDriver()->getStructure($this->id, $this->mailbox);
+	}
+
+	protected function initializeFlags()
+	{
+		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
+		$this->flags = $this->connection->getDriver()->getFlags($this->id);
 	}
 
 	/**

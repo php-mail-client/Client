@@ -106,12 +106,39 @@ class TestDriver implements IDriver {
 		);
 	}
 
-	public function getStructure($mailId, \greeny\MailLibrary\Mailbox $mailbox) {
+	public function getStructure($mailId, \greeny\MailLibrary\Mailbox $mailbox)
+	{
 		return new TestStructure();
 	}
 
-	public function getBody($mailId, array $partIds) {
+	public function getBody($mailId, array $partIds)
+	{
 		return str_repeat($mailId, 10);
+	}
+
+	public function getFlags($mailId)
+	{
+
+	}
+
+	function setFlag($mailId, $flag, $value)
+	{
+
+	}
+
+	function copyMail($mailId, $toMailbox)
+	{
+
+	}
+
+	function moveMail($mailId, $toMailbox)
+	{
+
+	}
+
+	function deleteMail($mailId)
+	{
+
 	}
 }
 

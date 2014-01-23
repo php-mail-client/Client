@@ -12,13 +12,13 @@ use greeny\MailLibrary\Structures\IStructure;
 interface IDriver {
 	/**
 	 * Connects to server
-	 * @throws DriverException if connecting fails
+	 * @throws DriverException
 	 */
 	function connect();
 
 	/**
 	 * Flushes changes to server
-	 * @throws DriverException if flushing fails
+	 * @throws DriverException
 	 */
 	function flush();
 
@@ -83,7 +83,6 @@ interface IDriver {
 
 	/**
 	 * Creates structure for mail
-	 *
 	 * @param int     $mailId
 	 * @param Mailbox $mailbox
 	 * @return IStructure
@@ -91,9 +90,49 @@ interface IDriver {
 	function getStructure($mailId, Mailbox $mailbox);
 
 	/**
+	 * Gets part of body
 	 * @param int   $mailId
 	 * @param array $partIds
 	 * @return string
 	 */
 	function getBody($mailId, array $partIds);
+
+	/**
+	 * Gets flags for mail
+	 * @param int $mailId
+	 * @return array
+	 */
+	function getFlags($mailId);
+
+	/**
+	 * Sets one flag for mail
+	 * @param int    $mailId
+	 * @param string $flag
+	 * @param bool   $value
+	 * @throws DriverException
+	 */
+	function setFlag($mailId, $flag, $value);
+
+	/**
+	 * Copies mail to another mailbox
+	 * @param int    $mailId
+	 * @param string $toMailbox
+	 * @throws DriverException
+	 */
+	function copyMail($mailId, $toMailbox);
+
+	/**
+	 * Moves mail to another mailbox
+	 * @param int    $mailId
+	 * @param string $toMailbox
+	 * @throws DriverException
+	 */
+	function moveMail($mailId, $toMailbox);
+
+	/**
+	 * Deletes mail
+	 * @param int $mailId
+	 * @throws DriverException
+	 */
+	function deleteMail($mailId);
 } 

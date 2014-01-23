@@ -282,11 +282,13 @@ class ImapDriver implements IDriver
 	}
 
 	/**
+	 * Gets part of body
+	 *
 	 * @param int   $mailId
 	 * @param array $partIds
 	 * @return string
 	 */
-	function getBody($mailId, array $partIds)
+	public function getBody($mailId, array $partIds)
 	{
 		$body = array();
 		foreach($partIds as $partId) {
@@ -301,6 +303,98 @@ class ImapDriver implements IDriver
 			$body[] = $data;
 		}
 		return implode('\n\n', $body);
+	}
+
+	/**
+	 * Gets flags for mail
+	 *
+	 * @param $mailId
+	 * @return array
+	 */
+	public function getFlags($mailId)
+	{
+		$data = imap_fetch_overview($this->resource, (string)$mailId, FT_UID);
+		reset($data);
+		$data = current($data);
+		$return = array(
+			Mail::FLAG_ANSWERED => FALSE,
+			Mail::FLAG_DELETED => FALSE,
+			Mail::FLAG_DRAFT => FALSE,
+			Mail::FLAG_FLAGGED => FALSE,
+			Mail::FLAG_SEEN => FALSE,
+		);
+		if($data->answered) {
+			$return[Mail::FLAG_ANSWERED] = TRUE;
+		}
+		if($data->deleted) {
+			$return[Mail::FLAG_DELETED] = TRUE;
+		}
+		if($data->draft) {
+			$return[Mail::FLAG_DRAFT] = TRUE;
+		}
+		if($data->flagged) {
+			$return[Mail::FLAG_FLAGGED] = TRUE;
+		}
+		if($data->seen) {
+			$return[Mail::FLAG_SEEN] = TRUE;
+		}
+		return $return;
+	}
+
+	/**
+	 * Sets one flag for mail
+	 *
+	 * @param int    $mailId
+	 * @param string $flag
+	 * @param bool   $value
+	 * @throws DriverException
+	 */
+	public function setFlag($mailId, $flag, $value)
+	{
+		if($value) {
+			if(!imap_setflag_full($this->resource, $mailId, $flag, ST_UID)) {
+				throw new DriverException("Cannot set flag '$flag': ".imap_last_error());
+			}
+		} else {
+			if(!imap_clearflag_full($this->resource, $mailId, $flag, ST_UID)) {
+				throw new DriverException("Cannot unset flag '$flag': ".imap_last_error());
+			}
+		}
+	}
+
+	/**
+	 * Copies mail to another mailbox
+	 * @param int    $mailId
+	 * @param string $toMailbox
+	 * @throws DriverException
+	 */
+	public function copyMail($mailId, $toMailbox) {
+		if(!imap_mail_copy($this->resource, $mailId, $this->server . $toMailbox, CP_UID)) {
+			throw new DriverException("Cannot copy mail to mailbox '$toMailbox': ".imap_last_error());
+		}
+	}
+
+	/**
+	 * Moves mail to another mailbox
+	 * @param int    $mailId
+	 * @param string $toMailbox
+	 * @throws DriverException
+	 */
+	public function moveMail($mailId, $toMailbox) {
+		if(!imap_mail_move($this->resource, $mailId, $this->server . $toMailbox, CP_UID)) {
+			throw new DriverException("Cannot copy mail to mailbox '$toMailbox': ".imap_last_error());
+		}
+	}
+
+	/**
+	 * Deletes mail
+	 * @param int $mailId
+	 * @throws DriverException
+	 */
+	public function deleteMail($mailId) {
+		if(!imap_delete($this->resource, $mailId, FT_UID)) {
+			throw new DriverException("Cannot delete mail: ".imap_last_error());
+		}
 	}
 
 	/**
