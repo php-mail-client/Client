@@ -106,7 +106,7 @@ class TestDriver implements IDriver {
 		);
 	}
 
-	public function getStructure($mailId) {
+	public function getStructure($mailId, \greeny\MailLibrary\Mailbox $mailbox) {
 		return new TestStructure();
 	}
 
