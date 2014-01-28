@@ -169,17 +169,26 @@ class ImapDriver implements IDriver
 	 * Finds UIDs of mails by filter
 	 *
 	 * @param array $filters
+	 * @param int   $limit
+	 * @param int   $offset
 	 * @throws DriverException
 	 * @return array of UIDs
 	 */
-	public function getMailIds(array $filters)
+	public function getMailIds(array $filters, $limit = 0, $offset = 0)
 	{
 		$filter = $this->buildFilters($filters);
 
 		if(!is_array($ids = imap_sort($this->resource, SORTARRIVAL, 0, SE_UID, $filter, 'UTF-8'))) {
 			throw new DriverException("Cannot get mails: " . imap_last_error());
 		}
-		return $ids;
+
+		$return = array();
+
+		for($i = $offset; $i < $offset + $limit; $i++) {
+			$return[] = $ids[$i];
+		}
+
+		return $return;
 	}
 
 	/**

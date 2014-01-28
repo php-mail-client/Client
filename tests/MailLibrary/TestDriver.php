@@ -69,7 +69,7 @@ class TestDriver implements IDriver {
 
 	public function switchMailbox($name) {}
 
-	public function getMailIds(array $filters)
+	public function getMailIds(array $filters, $limit = 0, $offset = 0)
 	{
 		if(count($filters)) return array(1);
 		else return array(1, 2);

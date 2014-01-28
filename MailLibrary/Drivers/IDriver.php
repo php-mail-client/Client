@@ -61,10 +61,12 @@ interface IDriver {
 	/**
 	 * Finds UIDs of mails by filter
 	 * @param array $filters
+	 * @param int   $limit
+	 * @param int   $offset
 	 * @throws DriverException
 	 * @return array of UIDs
 	 */
-	function getMailIds(array $filters);
+	function getMailIds(array $filters, $limit = 0, $offset = 0);
 
 	/**
 	 * Checks if filter is applicable for this driver

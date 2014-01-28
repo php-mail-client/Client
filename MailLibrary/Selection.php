@@ -26,6 +26,12 @@ class Selection implements ArrayAccess, Countable, Iterator {
 	/** @var array */
 	protected $filters = array();
 
+	/** @var int */
+	protected $limit = 0;
+
+	/** @var int */
+	protected $offset = 0;
+
 	public function __construct(Connection $connection, Mailbox $mailbox)
 	{
 		$this->connection = $connection;
@@ -43,6 +49,63 @@ class Selection implements ArrayAccess, Countable, Iterator {
 	{
 		$this->connection->getDriver()->checkFilter($key, $value);
 		$this->filters[] = array('key' => $key, 'value' => $value);
+		return $this;
+	}
+
+	/**
+	 * Adds limit (like SQL)
+	 *
+	 * @param int $limit
+	 * @return $this
+	 * @throws InvalidFilterValueException
+	 */
+	public function limit($limit)
+	{
+		$limit = (int) $limit;
+		if($limit < 0) {
+			throw new InvalidFilterValueException("Limit must be bigger or equal to 0, '$limit' given.");
+		}
+		$this->limit = $limit;
+		return $this;
+	}
+
+	/**
+	 * Adds offset (like SQL)
+	 *
+	 * @param $offset
+	 * @return $this
+	 * @throws InvalidFilterValueException
+	 */
+	public function offset($offset)
+	{
+		$offset = (int) $offset;
+		if($offset < 0) {
+			throw new InvalidFilterValueException("Offset must be bigger or equal to 0, '$offset' given.");
+		}
+		$this->offset = $offset;
+		return $this;
+	}
+
+	/**
+	 * Simplifies paginating.
+	 *
+	 * @param $page
+	 * @param $itemsPerPage
+	 * @return $this
+	 * @throws InvalidFilterValueException
+	 */
+	public function page($page, $itemsPerPage)
+	{
+		$page = (int) $page;
+		$itemsPerPage = (int) $itemsPerPage;
+		if($page <= 0) {
+			throw new InvalidFilterValueException("Page must be at least 1, '$page' given.");
+		}
+		if($itemsPerPage <= 0) {
+			throw new InvalidFilterValueException("Items per page must be at least 1, '$itemsPerPage' given.");
+		}
+		$this->offset(($page - 1) * $itemsPerPage);
+		$this->limit($itemsPerPage);
 		return $this;
 	}
 
@@ -74,7 +137,7 @@ class Selection implements ArrayAccess, Countable, Iterator {
 	protected function fetchMails()
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
-		$ids = $this->connection->getDriver()->getMailIds($this->filters);
+		$ids = $this->connection->getDriver()->getMailIds($this->filters, $this->limit, $this->offset);
 		$i = 0;
 		$this->mails = array();
 		$this->iterator = 0;
