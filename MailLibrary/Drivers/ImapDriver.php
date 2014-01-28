@@ -182,13 +182,7 @@ class ImapDriver implements IDriver
 			throw new DriverException("Cannot get mails: " . imap_last_error());
 		}
 
-		$return = array();
-
-		for($i = $offset; $i < $offset + $limit; $i++) {
-			$return[] = $ids[$i];
-		}
-
-		return $return;
+		return array_slice($ids, $offset, $limit);
 	}
 
 	/**
