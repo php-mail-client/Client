@@ -182,7 +182,7 @@ class ImapDriver implements IDriver
 			throw new DriverException("Cannot get mails: " . imap_last_error());
 		}
 
-		return array_slice($ids, $offset, $limit);
+		return $limit === 0 ? $ids : array_slice($ids, $offset, $limit);
 	}
 
 	/**
@@ -288,15 +288,15 @@ class ImapDriver implements IDriver
 	 * Gets part of body
 	 *
 	 * @param int   $mailId
-	 * @param array $partIds
+	 * @param array $data
 	 * @return string
 	 */
-	public function getBody($mailId, array $partIds)
+	public function getBody($mailId, array $data)
 	{
 		$body = array();
-		foreach($partIds as $partId) {
-			$data = ($partId['id'] == 0) ? imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : imap_fetchbody($this->resource, $mailId, $partId['id'], FT_UID | FT_PEEK);
-			$encoding = $partId['encoding'];
+		foreach($data as $part) {
+			$data = ($part['id'] == 0) ? imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : imap_fetchbody($this->resource, $mailId, $part['id'], FT_UID | FT_PEEK);
+			$encoding = $part['encoding'];
 			if($encoding === ImapStructure::ENCODING_BASE64) {
 				$data = base64_decode($data);
 			} else if($encoding === ImapStructure::ENCODING_QUOTED_PRINTABLE) {

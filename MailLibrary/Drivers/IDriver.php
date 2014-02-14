@@ -94,10 +94,10 @@ interface IDriver {
 	/**
 	 * Gets part of body
 	 * @param int   $mailId
-	 * @param array $partIds
+	 * @param array $data
 	 * @return string
 	 */
-	function getBody($mailId, array $partIds);
+	function getBody($mailId, array $data);
 
 	/**
 	 * Gets flags for mail
