@@ -69,7 +69,7 @@ class ImapStructure implements IStructure {
 			$this->addStructurePart($structure, '0');
 		} else {
 			foreach((array)$structure->parts as $id => $part) {
-				$this->addStructurePart($part, $id+1);
+				$this->addStructurePart($part, (string) ($id + 1));
 			}
 		}
 	}
@@ -110,12 +110,17 @@ class ImapStructure implements IStructure {
 
 	/**
 	 * @return Attachment[]
-	 * @throws \greeny\MailLibrary\NotImplementedException
 	 */
 	public function getAttachments()
 	{
 		$this->driver->switchMailbox($this->mailbox->getName());
-		throw new NotImplementedException();
+		if($this->attachments === NULL) {
+			$this->attachments = array();
+			foreach($this->attachmentsIds as $attachmentData) {
+				$this->attachments[] = new Attachment($attachmentData['name'], $this->driver->getBody($this->id, array($attachmentData)));
+			}
+		}
+		return $this->attachments;
 	}
 
 	protected function addStructurePart($structure, $partId)
@@ -148,7 +153,7 @@ class ImapStructure implements IStructure {
 
 		if(isset($structure->parts)) {
 			foreach((array)$structure->parts as $id => $part) {
-				$this->addStructurePart($part, $partId.'.'.($id+1));
+				$this->addStructurePart($part, (string)($partId.'.'.($id+1)));
 			}
 		}
 	}
