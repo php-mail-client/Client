@@ -32,6 +32,12 @@ class Selection implements ArrayAccess, Countable, Iterator {
 	/** @var int */
 	protected $offset = 0;
 
+	/** @var int */
+	protected $orderBy = Mail::ORDER_DATE;
+
+	/** @var string */
+	protected $orderType = 'ASC';
+
 	public function __construct(Connection $connection, Mailbox $mailbox)
 	{
 		$this->connection = $connection;
@@ -109,6 +115,16 @@ class Selection implements ArrayAccess, Countable, Iterator {
 		return $this;
 	}
 
+	public function order($by, $type = 'ASC')
+	{
+		$type = strtoupper($type);
+		if(in_array($type, array('ASC', 'DESC'))) {
+			throw new InvalidFilterValueException("Sort type must be ASC or DESC, '$type' given.");
+		}
+		$this->orderBy = $by;
+		$this->orderType = $type;
+	}
+
 	/**
 	 * Counts mails
 	 *
@@ -137,7 +153,7 @@ class Selection implements ArrayAccess, Countable, Iterator {
 	protected function fetchMails()
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
-		$ids = $this->connection->getDriver()->getMailIds($this->filters, $this->limit, $this->offset);
+		$ids = $this->connection->getDriver()->getMailIds($this->filters, $this->limit, $this->offset, $this->orderBy, $this->orderType);
 		$i = 0;
 		$this->mails = array();
 		$this->iterator = 0;

@@ -6,6 +6,7 @@
 namespace greeny\MailLibrary\Drivers;
 
 use greeny\MailLibrary\DriverException;
+use greeny\MailLibrary\Mail;
 use greeny\MailLibrary\Mailbox;
 use greeny\MailLibrary\Structures\IStructure;
 
@@ -60,13 +61,15 @@ interface IDriver {
 
 	/**
 	 * Finds UIDs of mails by filter
-	 * @param array $filters
-	 * @param int   $limit
-	 * @param int   $offset
-	 * @throws DriverException
+	 *
+	 * @param array  $filters
+	 * @param int    $limit
+	 * @param int    $offset
+	 * @param int    $orderBy
+	 * @param string $orderType
 	 * @return array of UIDs
 	 */
-	function getMailIds(array $filters, $limit = 0, $offset = 0);
+	function getMailIds(array $filters, $limit = 0, $offset = 0, $orderBy = Mail::ORDER_DATE, $orderType = 'ASC');
 
 	/**
 	 * Checks if filter is applicable for this driver

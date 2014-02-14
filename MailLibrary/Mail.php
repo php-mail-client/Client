@@ -32,6 +32,13 @@ class Mail {
 	const FLAG_FLAGGED = "\\FLAGGED";
 	const FLAG_SEEN = "\\SEEN";
 
+	const ORDER_DATE = SORTARRIVAL;
+	const ORDER_FROM = SORTFROM;
+	const ORDER_SUBJECT = SORTSUBJECT;
+	const ORDER_TO = SORTTO;
+	const ORDER_CC = SORTCC;
+	const ORDER_SIZE = SORTSIZE;
+
 	/** @var \greeny\MailLibrary\Connection */
 	protected $connection;
 
