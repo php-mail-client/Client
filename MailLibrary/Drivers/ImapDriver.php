@@ -265,7 +265,12 @@ class ImapDriver implements IDriver
 				$contacts = imap_rfc822_parse_adrlist(imap_utf8(trim($header)), 'UNKNOWN_HOST');
 				$list = new ContactList();
 				foreach($contacts as $contact) {
-					$list->addContact($contact->mailbox, $contact->host, $contact->personal, $contact->adl);
+					$list->addContact(
+						isset($contact->mailbox) ? $contact->mailbox : NULL,
+						isset($contact->host) ? $contact->host : NULL,
+						isset($contact->personal) ? $contact->personal : NULL,
+						isset($contact->adl) ? $contact->adl : NULL
+					);
 				}
 				$list->build();
 				$headers[$key] = $list;
