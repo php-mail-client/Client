@@ -11,11 +11,13 @@ class MailLibraryExtension extends CompilerExtension {
 	public function loadConfiguration()
 	{
 		$config = $this->getConfig(array(
-			'username' => '',
-			'password' => '',
-			'host' => 'localhost',
-			'port' => 993,
-			'ssl' => 'true',
+			'imap' => array(
+				'username' => '',
+				'password' => '',
+				'host' => 'localhost',
+				'port' => 993,
+				'ssl' => 'true',
+			),
 		));
 
 		$config = $config['imap'];
