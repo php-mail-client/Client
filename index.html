@@ -38,8 +38,8 @@
                 <li><a href="#5"><i class="icon-chevron-right"></i>Filtering selection</a></li>
                 <li><a href="#6"><i class="icon-chevron-right"></i>Finally, working with mails</a></li>
                 <li><a href="#7"><i class="icon-chevron-right"></i>Attachments</a></li>
-	            <!--<li><a href="#8"><i class="icon-chevron-right"></i>8 </a></li>
-				<li><a href="#9"><i class="icon-chevron-right"></i>9 </a></li>
+	            <li><a href="#8"><i class="icon-chevron-right"></i>Nette extension</a></li>
+	            <!--<li><a href="#9"><i class="icon-chevron-right"></i>9 </a></li>
 				<li><a href="#10"><i class="icon-chevron-right"></i>10 </a></li>
 				<li><a href="#11"><i class="icon-chevron-right"></i>11 </a></li>-->
             </ul>
@@ -150,13 +150,20 @@ $selection
     ->where(Mail::FROM, 'mom@example.com')
     ->where(Mail::SUBJECT, 'Hello son!')
     ->limit(10)
-    ->offset(5);
+    ->offset(5)
+	->order(Mail::ORDER_TO);
             </pre>
             This code will:
             <ul>
                 <li>find all mails from 'mom@example.com' with subject 'Hello son!'</li>
                 <li>fetch only first 10 mails with offset 5 (like in SQL)</li>
+                <li>order mails by 'To' header.</li>
             </ul>
+
+            <div class="alert alert-info">
+	            <b>Warning!</b> Ordering mails is released in 3.1.0, so if you have only 3.0.0, it's time to update.
+            </div>
+
             <a name="6"></a>Now the <code>$selection</code> variable contains all these filters, limits, offsets, etc. In next paragraph,
             we will get mails from it.
 
@@ -214,9 +221,9 @@ foreach($selection as $mail) {
 	        mentioned above and values TRUE or FALSE.<br><br>
 	        Example: <pre>$mail->setFlags(array(Mail::FLAG_SEEN => TRUE, Mail::FLAG_DRAFT => FALSE))</pre> sets flag SEEN to TRUE and DRAFT to FALSE.<br><br>
 
-	        <a name="7"></a>For getting flags, use <code>$mail->getFlags()</code>, which returns an associative array with keys again the constants and values TRUE or FALSE<br><br>
+	        For getting flags, use <code>$mail->getFlags()</code>, which returns an associative array with keys again the constants and values TRUE or FALSE<br><br>
 
-	        <div class="alert alert-danger">
+            <a name="7"></a><div class="alert alert-danger">
 		        <b>Warning!</b> Do not forget to call <code>$connection->flush()</code> every time after you have modified flags.
 	        </div>
 
@@ -224,7 +231,7 @@ foreach($selection as $mail) {
 
 	        As always, MailLibrary provides easy access to attachments of mail.<br><br>
 
-	        <code>$mail->getAttachments()</code> returns array of <code>greeny\MailLibrary\Attachment</code>, a class which contains some basic methods:
+	        <a name="8"></a><code>$mail->getAttachments()</code> returns array of <code>greeny\MailLibrary\Attachment</code>, a class which contains some basic methods:
 	        <ul>
 		        <li><code>getName()</code> - returns original name of attachment</li>
 		        <li><code>getContent()</code> - returns content of the file</li>
@@ -233,9 +240,32 @@ foreach($selection as $mail) {
 
 	        Simple, easy to use, same as the rest of MailLibrary.
 
-	        <!--
-            <a name="8"></a>
-            <a name="9"></a>
+	        <a href="#7"><h2>Nette extension</h2></a>
+
+            If you use <a href="http://nette.org">Nette Framework</a>, you can easily use MailLibrary as an Extension.
+            Just add following lines to bootstrap.php:
+
+<pre>$configurator->onCompile[] = function($configurator, $compiler) {
+	$compiler->addExtension('maillibrary', new \greeny\MailLibrary\Extensions\MailLibraryExtension());
+};</pre>
+
+			And then add your configuration to config.neon or config.local.neon:
+
+<pre>
+maillibrary:
+	imap:
+		username: john.doe@example.com
+		password: top.secret
+		host: imap.example.com
+		port: 993
+		ssl: true
+</pre>
+
+            <div class="alert alert-info">
+	            <b>Warning!</b> Nette extension is released in 3.1.0, so if you have only 3.0.0, it's time to update.
+            </div>
+
+            <!--<a name="9"></a>
             <a name="10"></a>
             <a name="11"></a>-->
             <div class="footer">
