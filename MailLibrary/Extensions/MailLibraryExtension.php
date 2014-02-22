@@ -18,6 +18,8 @@ class MailLibraryExtension extends CompilerExtension {
 			'ssl' => 'true',
 		));
 
+		$config = $config['imap'];
+
 		$builder = $this->getContainerBuilder();
 
 		$builder->addDefinition($this->prefix('connection'))
