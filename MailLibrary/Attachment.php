@@ -12,10 +12,14 @@ class Attachment {
 	/** @var string */
 	protected $content;
 
-	public function __construct($name, $content)
+	/** @var string */
+	protected $type;
+
+	public function __construct($name, $content, $type)
 	{
 		$this->name = $name;
 		$this->content = $content;
+		$this->type = $type;
 	}
 
 	/**
@@ -41,6 +45,14 @@ class Attachment {
 	public function getContent()
 	{
 		return $this->content;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getType()
+	{
+		return $this->type;
 	}
 }
  

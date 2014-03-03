@@ -8,7 +8,6 @@ namespace greeny\MailLibrary\Structures;
 use greeny\MailLibrary\Attachment;
 use greeny\MailLibrary\Drivers\ImapDriver;
 use greeny\MailLibrary\Mailbox;
-use greeny\MailLibrary\NotImplementedException;
 
 class ImapStructure implements IStructure {
 	const TYPE_TEXT = 0;
@@ -26,6 +25,16 @@ class ImapStructure implements IStructure {
 	const ENCODING_BASE64 = 3;
 	const ENCODING_QUOTED_PRINTABLE = 4;
 	const ENCODING_OTHER = 5;
+
+	protected static $typeTable = array(
+		self::TYPE_TEXT => 'text',
+		self::TYPE_MULTIPART => 'multipart',
+		self::TYPE_MESSAGE => 'message',
+		self::TYPE_APPLICATION => 'application',
+		self::TYPE_AUDIO => 'audio',
+		self::TYPE_VIDEO => 'video',
+		self::TYPE_OTHER => 'other',
+	);
 
 	/** @var \greeny\MailLibrary\Drivers\ImapDriver */
 	protected $driver;
@@ -117,7 +126,7 @@ class ImapStructure implements IStructure {
 		if($this->attachments === NULL) {
 			$this->attachments = array();
 			foreach($this->attachmentsIds as $attachmentData) {
-				$this->attachments[] = new Attachment($attachmentData['name'], $this->driver->getBody($this->id, array($attachmentData)));
+				$this->attachments[] = new Attachment($attachmentData['name'], $this->driver->getBody($this->id, array($attachmentData)), $attachmentData['type']);
 			}
 		}
 		return $this->attachments;
@@ -142,12 +151,17 @@ class ImapStructure implements IStructure {
 		}
 
 		if(isset($parameters['filename']) || isset($parameters['name'])) {
-			$this->attachmentsIds[] = array('id' => $partId, 'encoding' => $encoding, 'name' => isset($parameters['filename']) ? $parameters['filename'] : $parameters['name']);
+			$this->attachmentsIds[] = array(
+				'id' => $partId,
+				'encoding' => $encoding,
+				'name' => isset($parameters['filename']) ? $parameters['filename'] : $parameters['name'],
+				'type' => self::$typeTable[$type]. '/' . $subtype,
+			);
 		} else if($type === self::TYPE_TEXT) {
 			if($subtype === 'HTML') {
 				$this->htmlBodyIds[] = array('id' => $partId, 'encoding' => $encoding);
 			} else if($subtype === 'PLAIN') {
-				$this->textBodyIds[] = array('id' => $partId, 'encoding' => $encoding);;
+				$this->textBodyIds[] = array('id' => $partId, 'encoding' => $encoding);
 			}
 		}
 
