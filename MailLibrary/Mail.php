@@ -204,6 +204,14 @@ class Mail {
 	}
 
 	/**
+	 * @return Contact|false
+	 */
+	public function getSender() {
+		$contacts = $this->from->getContactsObjects();
+		return (!empty($contacts[0]) ? $contacts[0] : false);
+	}
+
+	/**
 	 * Initializes headers
 	 */
 	protected function initializeHeaders()
