@@ -118,11 +118,12 @@ class Selection implements ArrayAccess, Countable, Iterator {
 	public function order($by, $type = 'ASC')
 	{
 		$type = strtoupper($type);
-		if(in_array($type, array('ASC', 'DESC'))) {
+		if(!in_array($type, array('ASC', 'DESC'))) {
 			throw new InvalidFilterValueException("Sort type must be ASC or DESC, '$type' given.");
 		}
 		$this->orderBy = $by;
 		$this->orderType = $type;
+		return $this;
 	}
 
 	/**
@@ -257,4 +258,3 @@ class Selection implements ArrayAccess, Countable, Iterator {
 		$this->iterator = 0;
 	}
 }
- 

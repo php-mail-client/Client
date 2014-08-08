@@ -61,7 +61,7 @@ class ImapDriver implements IDriver
 
 	public function __construct($username, $password, $host, $port = 993, $ssl = TRUE)
 	{
-		$ssl = $ssl ? '/ssl' : '';
+		$ssl = $ssl ? '/ssl' : '/novalidate-cert';
 		$this->server = '{'.$host.':'.$port.'/imap'.$ssl.'}';
 		$this->username = $username;
 		$this->password = $password;
