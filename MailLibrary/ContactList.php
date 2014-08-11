@@ -15,15 +15,22 @@ class ContactList implements Iterator, Countable{
 
 	public function addContact($mailbox = NULL, $host = NULL, $personal = NULL, $adl = NULL)
 	{
-		$this->contacts[] = new Contact($mailbox,$host,$personal,$adl);
+		$this->contacts[] = array(
+			'mailbox' => $mailbox,
+			'host' => $host,
+			'personal' => $personal,
+			'adl' => $adl,
+		);
 	}
 
 	public function build()
 	{
 		$return = array();
-		/** @var Contact $contact */
 		foreach($this->contacts as $contact) {
-			$return[] = $contact->__toString();
+			$address = $contact['personal'] ? "\"" . $contact['personal']. "\" " : "";
+			$address .= $contact['adl'] ? $contact['adl'].":" : "";
+			$address .= "<".$contact['mailbox']."@".$contact['host'].">";
+			$return[] = $address;
 		}
 		$this->builtContacts = $return;
 	}
@@ -31,14 +38,6 @@ class ContactList implements Iterator, Countable{
 	public function getContacts()
 	{
 		return $this->builtContacts;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getContactsObjects()
-	{
-		return $this->contacts;
 	}
 
 	public function __toString()
