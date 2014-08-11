@@ -204,11 +204,11 @@ class Mail {
 	}
 
 	/**
-	 * @return Contact|false
+	 * @return Contact|null
 	 */
 	public function getSender() {
 		$contacts = $this->from->getContactsObjects();
-		return (!empty($contacts[0]) ? $contacts[0] : false);
+		return (!empty($contacts[0]) ? $contacts[0] : null);
 	}
 
 	/**
