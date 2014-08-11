@@ -69,6 +69,12 @@ class Mail {
 		$this->id = $id;
 	}
 
+	/**
+	 * Header checker
+	 *
+	 * @param $name
+	 * @return bool
+	 */
 	public function __isset($name)
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
@@ -76,7 +82,7 @@ class Mail {
 	}
 
 	/**
-	 * Gets header
+	 * Header getter
 	 *
 	 * @param string $name
 	 * @return mixed
@@ -119,6 +125,19 @@ class Mail {
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
 		return $this->headers[$this->formatHeaderName($name)];
+	}
+
+	/**
+	 * @return Contact|null
+	 */
+	public function getSender() {
+		$from = $this->getHeader('from');
+		if($from) {
+			$contacts = $from->getContactsObjects();
+			return (count($contacts) ? $contacts[0] : NULL);
+		} else {
+			return NULL;
+		}
 	}
 
 	/**
@@ -204,14 +223,6 @@ class Mail {
 	}
 
 	/**
-	 * @return Contact|null
-	 */
-	public function getSender() {
-		$contacts = $this->from->getContactsObjects();
-		return (!empty($contacts[0]) ? $contacts[0] : null);
-	}
-
-	/**
 	 * Initializes headers
 	 */
 	protected function initializeHeaders()
@@ -248,4 +259,3 @@ class Mail {
 		}, $name));
 	}
 }
- 

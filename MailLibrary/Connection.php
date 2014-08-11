@@ -35,6 +35,7 @@ class Connection {
 
 	/**
 	 * Connects to the server
+	 * @return Connection
 	 * @throws ConnectionException
 	 */
 	public function connect()
@@ -47,6 +48,7 @@ class Connection {
 				throw new ConnectionException("Cannot connect to server.", $e->getCode(), $e);
 			}
 		}
+		return $this;
 	}
 
 	/**
@@ -59,12 +61,14 @@ class Connection {
 
 	/**
 	 * Flushes changes to server
+	 * @return Connection
 	 * @throws DriverException
 	 */
 	public function flush()
 	{
 		$this->connected || $this->connect();
 		$this->driver->flush();
+		return $this;
 	}
 
 	/**

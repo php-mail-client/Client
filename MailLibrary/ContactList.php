@@ -8,7 +8,9 @@ namespace greeny\MailLibrary;
 use Iterator;
 use Countable;
 
-class ContactList implements Iterator, Countable{
+class ContactList implements Iterator, Countable
+{
+	/** @var Contact[] */
 	protected $contacts;
 
 	protected $builtContacts;
@@ -21,7 +23,6 @@ class ContactList implements Iterator, Countable{
 	public function build()
 	{
 		$return = array();
-		/** @var Contact $contact */
 		foreach($this->contacts as $contact) {
 			$return[] = $contact->__toString();
 		}
@@ -80,4 +81,3 @@ class ContactList implements Iterator, Countable{
 		return count($this->builtContacts);
 	}
 }
- 

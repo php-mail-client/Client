@@ -1,23 +1,20 @@
 <?php
 /**
  * @author Martin Pecha
+ * @author Tomáš Blatný
  */
 
 namespace greeny\MailLibrary;
 
-/**
- * Class Contact
- * @package greeny\MailLibrary
- */
-class Contact {
-
-	/** @var  string */
+class Contact
+{
+	/** @var string */
 	private $mailbox;
-	/** @var  string */
+	/** @var string */
 	private $host;
-	/** @var  string */
+	/** @var string */
 	private $personal;
-	/** @var  string */
+	/** @var string */
 	private $adl;
 
 	/**
@@ -26,7 +23,8 @@ class Contact {
 	 * @param $personal
 	 * @param $adl
 	 */
-	public function __construct($mailbox=NULL, $host=NULL, $personal=NULL, $adl=NULL) {
+	public function __construct($mailbox = NULL, $host = NULL, $personal = NULL, $adl = NULL)
+	{
 		$this->mailbox = $mailbox;
 		$this->host = $host;
 		$this->personal = $personal;
@@ -36,7 +34,8 @@ class Contact {
 	/**
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		$address = $this->getName() ? "\"" . $this->getName(). "\" " : "";
 		$address .= $this->getAdl() ? $this->getAdl().":" : "";
 		$address .= "<".$this->getEmail().">";
@@ -46,21 +45,24 @@ class Contact {
 	/**
 	 * @return string
 	 */
-	public function getEmail() {
+	public function getEmail()
+	{
 		return $this->mailbox."@".$this->host;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getName() {
+	public function getName()
+	{
 		return $this->personal;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getAdl() {
+	public function getAdl()
+	{
 		return $this->adl;
 	}
 
