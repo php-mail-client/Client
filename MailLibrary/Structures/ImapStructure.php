@@ -32,6 +32,7 @@ class ImapStructure implements IStructure {
 		self::TYPE_MESSAGE => 'message',
 		self::TYPE_APPLICATION => 'application',
 		self::TYPE_AUDIO => 'audio',
+		self::TYPE_IMAGE => 'image',
 		self::TYPE_VIDEO => 'video',
 		self::TYPE_OTHER => 'other',
 	);
