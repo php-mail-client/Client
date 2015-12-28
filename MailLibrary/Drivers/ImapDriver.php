@@ -385,7 +385,7 @@ class ImapDriver implements IDriver
 	 * @throws DriverException
 	 */
 	public function copyMail($mailId, $toMailbox) {
-		if(!imap_mail_copy($this->resource, $mailId, $this->server . $this->encodeMailboxName($toMailbox), CP_UID)) {
+		if(!imap_mail_copy($this->resource, $mailId, /*$this->server .*/ $this->encodeMailboxName($toMailbox), CP_UID)) {
 			throw new DriverException("Cannot copy mail to mailbox '$toMailbox': ".imap_last_error());
 		}
 	}
@@ -397,7 +397,7 @@ class ImapDriver implements IDriver
 	 * @throws DriverException
 	 */
 	public function moveMail($mailId, $toMailbox) {
-		if(!imap_mail_move($this->resource, $mailId, $this->server . $this->encodeMailboxName($toMailbox), CP_UID)) {
+		if(!imap_mail_move($this->resource, $mailId, /*$this->server .*/ $this->encodeMailboxName($toMailbox), CP_UID)) {
 			throw new DriverException("Cannot copy mail to mailbox '$toMailbox': ".imap_last_error());
 		}
 	}
