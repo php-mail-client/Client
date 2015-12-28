@@ -265,7 +265,7 @@ class ImapDriver implements IDriver
 				}
 
 				$headers[$key] = trim($text);
-			} else if(in_array(strtolower($key), self::$contactHeaders)) {
+			} /*else if(in_array(strtolower($key), self::$contactHeaders)) {
 				$contacts = imap_rfc822_parse_adrlist(imap_utf8(trim($header)), 'UNKNOWN_HOST');
 				$list = new ContactList();
 				foreach($contacts as $contact) {
@@ -278,7 +278,7 @@ class ImapDriver implements IDriver
 				}
 				$list->build();
 				$headers[$key] = $list;
-			} else {
+			}*/ else {
 				$headers[$key] = trim(imap_utf8($header));
 			}
 		}
