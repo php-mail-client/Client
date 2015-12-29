@@ -5,6 +5,9 @@
 
 namespace greeny\MailLibrary;
 
+use greeny\MailLibrary\Structures\IStructure;
+use Nette\Utils\Strings;
+
 class Mail {
 	const ANSWERED = 'ANSWERED';
 	const BCC = 'BCC';
@@ -39,10 +42,10 @@ class Mail {
 	const ORDER_CC = SORTCC;
 	const ORDER_SIZE = SORTSIZE;
 
-	/** @var \greeny\MailLibrary\Connection */
+	/** @var Connection */
 	protected $connection;
 
-	/** @var \greeny\MailLibrary\Mailbox */
+	/** @var Mailbox */
 	protected $mailbox;
 
 	/** @var int */
@@ -51,7 +54,7 @@ class Mail {
 	/** @var array */
 	protected $headers = NULL;
 
-	/** @var \greeny\MailLibrary\Structures\IStructure */
+	/** @var IStructure */
 	protected $structure = NULL;
 
 	/** @var array */
@@ -78,7 +81,8 @@ class Mail {
 	public function __isset($name)
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
-		return isset($this->headers[$this->formatHeaderName($name)]);
+		$key = $this->normalizeHeaderName($this->lowerCamelCaseToHeaderName($name));
+		return isset($this->headers[$key]);
 	}
 
 	/**
@@ -86,10 +90,18 @@ class Mail {
 	 *
 	 * @param string $name
 	 * @return mixed
+	 * @deprecated
 	 */
 	public function __get($name)
 	{
-		return $this->getHeader($name);
+		\trigger_error(\E_USER_DEPRECATED, 'use array access with execat header name instead');
+		return $this->getHeader(
+			$this->normalizeHeaderName($this->lowerCamelCaseToHeaderName($name))
+		);
+	}
+
+	public function __set($name, $value) {
+		throw new \Exception('Mail headers are read-only.');
 	}
 
 	/**
@@ -124,12 +136,12 @@ class Mail {
 	public function getHeader($name)
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
-		$index = $this->formatHeaderName($name);
+		$index = $this->normalizeHeaderName($name);
 		if(isset($this->headers[$index])) {
 			return $this->headers[$index];
-		} else {
-			return NULL;
 		}
+
+		return NULL;
 	}
 
 	/**
@@ -140,9 +152,9 @@ class Mail {
 		if($from) {
 			$contacts = $from->getContactsObjects();
 			return (count($contacts) ? $contacts[0] : NULL);
-		} else {
-			return NULL;
 		}
+
+		return NULL;
 	}
 
 	/**
@@ -235,7 +247,7 @@ class Mail {
 		$this->headers = array();
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		foreach($this->connection->getDriver()->getHeaders($this->id) as $key => $value) {
-			$this->headers[$this->formatHeaderName($key)] = $value;
+			$this->headers[$this->normalizeHeaderName($key)] = $value;
 		}
 	}
 
@@ -252,15 +264,29 @@ class Mail {
 	}
 
 	/**
-	 * Formats header name (X-Received-From => xReceivedFrom)
+	 * Formats header name (X-Received-From => x-recieved-from)
 	 *
-	 * @param string $name
+	 * @param string $name Header name (with dashes, valid UTF-8 string)
 	 * @return string
 	 */
-	protected function formatHeaderName($name)
+	protected function normalizeHeaderName($name)
 	{
-		return lcfirst(preg_replace_callback("~-.~", function($matches){
+		return Strings::normalize(Strings::lower($name));
+	}
+	
+	/**
+	 * Converts camel cased name to normalized header name (xReceivedFrom => x-recieved-from)
+	 *
+	 * @param string $camelCasedName
+	 * @return string name with dashes
+	 */
+	protected function lowerCamelCaseToHeaderName($camelCasedName) {
+		// todo: test this
+		// todo: use something like this instead http://stackoverflow.com/a/1993772
+		$dashedName = lcfirst(preg_replace_callback("~-.~", function($matches){
 			return ucfirst(substr($matches[0], 1));
-		}, $name));
+		}, $camelCasedName));
+		
+		return $this->normalizeHeaderName($dashedName);
 	}
 }
