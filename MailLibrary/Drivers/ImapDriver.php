@@ -10,6 +10,7 @@ use greeny\MailLibrary\DriverException;
 use greeny\MailLibrary\Mailbox;
 use greeny\MailLibrary\Structures\IStructure;
 use greeny\MailLibrary\Structures\ImapStructure;
+use Nette\Utils\Strings;
 use greeny\MailLibrary\Mail;
 use DateTime;
 
@@ -227,18 +228,21 @@ class ImapDriver implements IDriver
 	public function getHeaders($mailId)
 	{
 		$raw = imap_fetchheader($this->resource, $mailId, FT_UID);
-		$lines = explode("\n", $raw);
+		$lines = explode("\n", Strings::fixEncoding($raw));
 		$headers = array();
 		$lastHeader = NULL;
+		
+		// normalize headers
 		foreach($lines as $line) {
-			if(mb_substr($line, 0, 1, 'UTF-8') === " ") {
-				$headers[$lastHeader] .= $line;
+			$firstCharacter = mb_substr($line, 0, 1, 'UTF-8'); // todo: correct assumption that string must be UTF-8 encoded?
+			if(preg_match('/[\pZ\pC]/u', $firstCharacter) === 1) { // search for UTF-8 whitespaces
+				$headers[$lastHeader] .= " " . Strings::trim($line);
 			} else {
 				$parts = explode(':', $line);
-				$name = $parts[0];
+				$name = Strings::trim($parts[0]);
 				unset($parts[0]);
 
-				$headers[$name] = implode(':', $parts);
+				$headers[$name] = Strings::trim(implode(':', $parts));
 				$lastHeader = $name;
 			}
 		}
@@ -254,7 +258,7 @@ class ImapDriver implements IDriver
 				$text = '';
 				foreach($decoded as $part) {
 					if($part->charset !== 'UTF-8' && $part->charset !== 'default') {
-						$text .= mb_convert_encoding($part->text, 'UTF-8', $part->charset);
+						$text .= @mb_convert_encoding($part->text, 'UTF-8', $part->charset); // todo: handle this more properly
 					} else {
 						$text .= $part->text;
 					}

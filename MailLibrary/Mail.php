@@ -124,7 +124,12 @@ class Mail {
 	public function getHeader($name)
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
-		return $this->headers[$this->formatHeaderName($name)];
+		$index = $this->formatHeaderName($name);
+		if(isset($this->headers[$index])) {
+			return $this->headers[$index];
+		} else {
+			return NULL;
+		}
 	}
 
 	/**

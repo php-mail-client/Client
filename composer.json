@@ -12,7 +12,9 @@
         "files": ["MailLibrary/loader.php"]
     },
     "require": {
-        "php": ">= 5.3.0"
+        "php": ">= 5.3.0",
+        "ext-imap": "*",
+        "nette/utils": "~2.2"
     },
     "require-dev": {
         "nette/tester": "@dev"

@@ -11,9 +11,9 @@ use Countable;
 class ContactList implements Iterator, Countable
 {
 	/** @var Contact[] */
-	protected $contacts;
+	protected $contacts = [];
 
-	protected $builtContacts;
+	protected $builtContacts = [];
 
 	public function addContact($mailbox = NULL, $host = NULL, $personal = NULL, $adl = NULL)
 	{
