@@ -1,20 +1,23 @@
 {
-    "name": "greeny/maillibrary",
-    "description": "This library allows you to get mails from mail server.",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Tomáš Blatný",
-            "homepage": "https://github.com/greeny"
-        }
-    ],
-    "autoload": {
-        "files": ["MailLibrary/loader.php"]
-    },
-    "require": {
-        "php": ">= 5.3.0"
-    },
-    "require-dev": {
-        "nette/tester": "@dev"
-    }
+	"name": "php-mail-client/client",
+	"description": "Full featured PHP mail client. Create, edit, delete, move and set flags to messages with ease! Drivers for IMAP4 and Microsoft Exchange Web Services available.",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Tomáš Blatný",
+			"email": "blatny.tomas@seznam.cz",
+			"homepage": "http://tomasblatny.eu"
+		}
+	],
+	"autoload": {
+		"files": [
+			"MailLibrary/loader.php"
+		]
+	},
+	"require": {
+		"php": ">= 5.4.0"
+	},
+	"require-dev": {
+		"nette/tester": "@dev"
+	}
 }

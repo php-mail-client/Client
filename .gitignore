@@ -1,3 +1,6 @@
-vendor/*
-.idea/*
+# PhpStorm stuff
+.idea
+
+# Composer
+vendor
 composer.lock
