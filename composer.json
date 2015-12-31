@@ -10,11 +10,11 @@
     ],
     "autoload": {
         "psr-4": {
-            "greeny\\MailLibrary\\": "src"
+            "greeny\\EmailClient\\": "src/"
         }
     },
     "require": {
-        "php": ">= 5.4.0"
+        "php": ">= 5.6.0"
     },
     "require-dev": {
         "nette/tester": "^1.6"

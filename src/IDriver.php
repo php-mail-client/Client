@@ -3,9 +3,9 @@
  * @author Tomáš Blatný
  */
 
-namespace greeny\MailLibrary;
+namespace greeny\EmailClient;
 
-use greeny\MailLibrary\Exceptions\DriverException;
+use greeny\EmailClient\Exceptions\DriverException;
 
 
 interface IDriver
@@ -26,5 +26,27 @@ interface IDriver
 	 * @throws DriverException on unsuccessful connection
 	 */
 	function connect();
+
+
+	/**
+	 * Disconnects from server
+	 *
+	 * @throws DriverException on unsuccessful disconnection
+	 */
+	function disconnect();
+
+
+	/**
+	 * Flushes changes to server
+	 */
+	function flush();
+
+
+	/**
+	 * Returns all defined mailboxes
+	 *
+	 * @return Mailbox[]
+	 */
+	function getMailboxes();
 
 }

@@ -3,12 +3,12 @@
  * @author Tomáš Blatný
  */
 
-namespace greeny\MailLibrary\Exceptions;
+namespace greeny\EmailClient\Exceptions;
 
 use Exception;
 
 
-class DriverException extends MailLibraryException
+class DriverException extends EmailClientException
 {
 
 	public static function create($message, $imapError, $code = 0, Exception $previous = NULL)

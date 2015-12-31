@@ -3,10 +3,11 @@
  * @author Tomáš Blatný
  */
 
-namespace greeny\MailLibrary\Drivers;
+namespace greeny\EmailClient\Drivers;
 
-use greeny\MailLibrary\Exceptions\DriverException;
-use greeny\MailLibrary\IDriver;
+use greeny\EmailClient\Exceptions\DriverException;
+use greeny\EmailClient\IDriver;
+use greeny\EmailClient\Mailbox;
 
 
 class ImapDriver implements IDriver
@@ -69,14 +70,50 @@ class ImapDriver implements IDriver
 	 */
 	public function connect()
 	{
-		$flags = CL_EXPUNGE;
-		if ($this->secure) {
-			$flags |= OP_SECURE;
-		}
-		$this->resource = @imap_open($this->server, $this->user, $this->password, $flags);
+		$this->resource = @imap_open($this->server, $this->user, $this->password, CL_EXPUNGE);
 		if ($this->resource === FALSE) {
 			throw DriverException::create('Could not connect to IMAP server', imap_last_error());
 		}
 		$this->connected = TRUE;
 	}
+
+
+	/**
+	 * @inheritdoc
+	 */
+	public function disconnect()
+	{
+		if (!@imap_close($this->resource, CL_EXPUNGE)) {
+			throw DriverException::create('Could not disconnect from IMAP server', imap_last_error());
+		}
+		$this->connected = FALSE;
+	}
+
+
+	/**
+	 * @inheritdoc
+	 */
+	public function flush()
+	{
+		imap_expunge($this->resource);
+	}
+
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getMailboxes()
+	{
+		$mailboxes = imap_list($this->resource, $this->server, '*');
+		if (!is_array($mailboxes)) {
+			throw DriverException::create('Could not list mailboxes', imap_last_error());
+		}
+
+		return array_map(function ($name) {
+			$name = mb_convert_encoding($name, 'UTF8', 'UTF7-IMAP');
+			return new Mailbox($this, $name, str_replace($this->server, '', $name));
+		}, $mailboxes);
+	}
+
+
 }

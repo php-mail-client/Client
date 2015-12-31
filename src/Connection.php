@@ -3,13 +3,16 @@
  * @author Tomáš Blatný
  */
 
-namespace greeny\MailLibrary;
+namespace greeny\EmailClient;
 
 class Connection
 {
 
 	/** @var IDriver */
 	private $driver;
+
+	/** @var Mailbox[] */
+	private $mailboxes;
 
 
 	/**
@@ -44,6 +47,42 @@ class Connection
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Forces check of connection
+	 *
+	 * @return bool
+	 */
+	public function isConnected()
+	{
+		return $this->driver->isConnected(TRUE);
+	}
+
+
+	/**
+	 * Disconnects from server
+	 */
+	public function disconnect()
+	{
+		if ($this->driver->isConnected()) {
+			$this->driver->disconnect();
+		}
+	}
+
+
+	/**
+	 * Gets all mailboxes from server
+	 *
+	 * @return Mailbox[]
+	 */
+	public function getMailboxes()
+	{
+		if (!$this->mailboxes) {
+			$this->mailboxes = $this->driver->getMailboxes();
+		}
+		return $this->mailboxes;
 	}
 
 }
