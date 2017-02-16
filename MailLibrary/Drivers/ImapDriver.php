@@ -301,22 +301,29 @@ class ImapDriver implements IDriver
 	 * Gets part of body
 	 *
 	 * @param int   $mailId
-	 * @param array $data
+	 * @param array $data requires id and encoding keys
 	 * @return string
+	 * @throws \greeny\MailLibrary\DriverException
 	 */
 	public function getBody($mailId, array $data)
 	{
 		$body = array();
 		foreach($data as $part) {
-			$data = ($part['id'] == 0) ? imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : imap_fetchbody($this->resource, $mailId, $part['id'], FT_UID | FT_PEEK);
+			assert(is_array($part));
+			$dataMessage = ($part['id'] === 0) ? @imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : @imap_fetchbody($this->resource, $mailId, $part['id'], FT_UID | FT_PEEK);
+			if($dataMessage === FALSE) {
+				throw new DriverException("Cannot read given message part - " . error_get_last()["message"]);
+			}
 			$encoding = $part['encoding'];
 			if($encoding === ImapStructure::ENCODING_BASE64) {
-				$data = base64_decode($data);
+				$dataMessage = base64_decode($dataMessage);
 			} else if($encoding === ImapStructure::ENCODING_QUOTED_PRINTABLE) {
-				$data = quoted_printable_decode($data);
+				$dataMessage = quoted_printable_decode($dataMessage);
 			}
 
-			$body[] = $data;
+			// todo: other encodings?
+
+			$body[] = $dataMessage;
 		}
 		return implode('\n\n', $body);
 	}
