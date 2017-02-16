@@ -8,6 +8,7 @@ namespace greeny\MailLibrary\Structures;
 use greeny\MailLibrary\Attachment;
 use greeny\MailLibrary\Drivers\ImapDriver;
 use greeny\MailLibrary\Mailbox;
+use greeny\MailLibrary\MimePart;
 
 class ImapStructure implements IStructure {
 	const TYPE_TEXT = 0;
@@ -37,6 +38,9 @@ class ImapStructure implements IStructure {
 		self::TYPE_OTHER => 'other',
 	);
 
+	/** @var MimePart[] */
+	private $mimeParts = [];
+
 	/** @var \greeny\MailLibrary\Drivers\ImapDriver */
 	protected $driver;
 
@@ -64,6 +68,9 @@ class ImapStructure implements IStructure {
 	/** @var Mailbox */
 	protected $mailbox;
 
+	/** @var array */
+	private $rawStructure = [];
+
 	/**
 	 * @param ImapDriver $driver
 	 * @param object     $structure
@@ -72,6 +79,7 @@ class ImapStructure implements IStructure {
 	 */
 	public function __construct(ImapDriver $driver, $structure, $mailId, Mailbox $mailbox)
 	{
+		$this->rawStructure = $structure;
 		$this->driver = $driver;
 		$this->id = $mailId;
 		$this->mailbox = $mailbox;
@@ -82,6 +90,15 @@ class ImapStructure implements IStructure {
 				$this->addStructurePart($part, (string) ($id + 1));
 			}
 		}
+	}
+
+	/**
+	 * @return array
+	 * @internal use only with caution, format can change without warning
+	 */
+	public function getRawStructure()
+	{
+		return $this->rawStructure;
 	}
 
 	/**
@@ -100,9 +117,9 @@ class ImapStructure implements IStructure {
 		if($this->htmlBody === NULL) {
 			$this->driver->switchMailbox($this->mailbox->getName());
 			return $this->htmlBody = $this->driver->getBody($this->id, $this->htmlBodyIds);
-		} else {
-			return $this->htmlBody;
 		}
+
+		return $this->htmlBody;
 	}
 
 	/**
@@ -113,9 +130,9 @@ class ImapStructure implements IStructure {
 		if($this->textBody === NULL) {
 			$this->driver->switchMailbox($this->mailbox->getName());
 			return $this->textBody = $this->driver->getBody($this->id, $this->textBodyIds);
-		} else {
-			return $this->textBody;
 		}
+
+		return $this->textBody;
 	}
 
 	/**
@@ -131,6 +148,21 @@ class ImapStructure implements IStructure {
 			}
 		}
 		return $this->attachments;
+	}
+
+	/**
+	 * @return MimePart[]
+	 */
+	public function getMimeParts()
+	{
+		$this->driver->switchMailbox($this->mailbox->getName());
+		return $this->mimeParts;
+	}
+
+	/** @deprecated use getMimeParts() instead */
+	public function getParts() {
+		\trigger_error(\E_USER_DEPRECATED, 'use getMimeParts() instead');
+		return $this->getMimeParts();
 	}
 
 	protected function addStructurePart($structure, $partId)
@@ -151,6 +183,19 @@ class ImapStructure implements IStructure {
 			}
 		}
 
+		/** @noinspection NestedTernaryOperatorInspection Yep, will fix this when we switch to PHP7 level; see ?? operator */
+		$this->mimeParts[] = new MimePart(
+			$this->driver, // for lazy loading
+			$this->id,
+			$partId,
+			self::$typeTable[$type]. '/' . $subtype,
+			(empty($parameters['filename']) ? $parameters['filename'] :  (
+				empty($parameters['name']) ? $parameters['name'] : ''
+			)),
+			$encoding
+		);
+
+
 		if(isset($parameters['filename']) || isset($parameters['name'])) {
 			$this->attachmentsIds[] = array(
 				'id' => $partId,
@@ -158,6 +203,7 @@ class ImapStructure implements IStructure {
 				'name' => isset($parameters['filename']) ? $parameters['filename'] : $parameters['name'],
 				'type' => self::$typeTable[$type]. '/' . $subtype,
 			);
+
 		} else if($type === self::TYPE_TEXT) {
 			if($subtype === 'HTML') {
 				$this->htmlBodyIds[] = array('id' => $partId, 'encoding' => $encoding);

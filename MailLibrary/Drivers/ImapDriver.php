@@ -301,22 +301,39 @@ class ImapDriver implements IDriver
 	 * Gets part of body
 	 *
 	 * @param int   $mailId
-	 * @param array $data
+	 * @param array $data requires id and encoding keys
 	 * @return string
+	 * @throws \greeny\MailLibrary\DriverException
 	 */
 	public function getBody($mailId, array $data)
 	{
 		$body = array();
 		foreach($data as $part) {
-			$data = ($part['id'] == 0) ? imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : imap_fetchbody($this->resource, $mailId, $part['id'], FT_UID | FT_PEEK);
-			$encoding = $part['encoding'];
-			if($encoding === ImapStructure::ENCODING_BASE64) {
-				$data = base64_decode($data);
-			} else if($encoding === ImapStructure::ENCODING_QUOTED_PRINTABLE) {
-				$data = quoted_printable_decode($data);
+			assert(is_array($part));
+			$dataMessage = ($part['id'] === 0) ? @imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : @imap_fetchbody($this->resource, $mailId, $part['id'], FT_UID | FT_PEEK);
+			if($dataMessage === FALSE) {
+				throw new DriverException("Cannot read given message part - " . error_get_last()["message"]);
 			}
 
-			$body[] = $data;
+			// when there is no encoding of mime part available
+			if(!isset($part['encoding'])) {
+				$decodedMessage = $dataMessage;
+
+			} elseif($part['encoding'] === ImapStructure::ENCODING_BASE64) {
+				$decodedMessage = base64_decode($dataMessage);
+				if($decodedMessage === FALSE) {
+					throw new DriverException('Malformed mime-part: cannot decode base64 mime-part');
+				}
+
+			} elseif($part['encoding'] === ImapStructure::ENCODING_QUOTED_PRINTABLE) {
+				$decodedMessage = quoted_printable_decode($dataMessage);
+
+			} else {
+				throw new DriverException("Mime-part reading error: unknown encoding ({$part['encoding']})");
+
+			}
+
+			$body[] = $decodedMessage;
 		}
 		return implode('\n\n', $body);
 	}

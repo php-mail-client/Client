@@ -194,6 +194,15 @@ class Mail {
 	}
 
 	/**
+	 * @return \greeny\MailLibrary\MimePart[]
+	 */
+	public function getMimeParts()
+	{
+		$this->structure !== NULL || $this->initializeStructure();
+		return $this->structure->getMimeParts();
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getFlags()
@@ -255,6 +264,15 @@ class Mail {
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		$this->structure = $this->connection->getDriver()->getStructure($this->id, $this->mailbox);
+	}
+
+	/**
+	 * @internal
+	 * @return IStructure
+	 */
+	public function getStructure() {
+		$this->structure !== NULL || $this->initializeStructure();
+		return $this->structure;
 	}
 
 	protected function initializeFlags()
