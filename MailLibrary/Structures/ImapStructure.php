@@ -189,9 +189,11 @@ class ImapStructure implements IStructure {
 			$this->id,
 			$partId,
 			self::$typeTable[$type]. '/' . $subtype,
-			(empty($parameters['filename']) ? $parameters['filename'] :  (
-				empty($parameters['name']) ? $parameters['name'] : ''
-			)),
+			\imap_utf8(
+				empty($parameters['filename']) ? $parameters['filename'] :  (
+					empty($parameters['name']) ? $parameters['name'] : ''
+				)
+			),
 			$encoding
 		);
 
@@ -200,7 +202,9 @@ class ImapStructure implements IStructure {
 			$this->attachmentsIds[] = array(
 				'id' => $partId,
 				'encoding' => $encoding,
-				'name' => isset($parameters['filename']) ? $parameters['filename'] : $parameters['name'],
+				'name' => \imap_utf8(
+					isset($parameters['filename']) ? $parameters['filename'] : $parameters['name']
+				),
 				'type' => self::$typeTable[$type]. '/' . $subtype,
 			);
 
