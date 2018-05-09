@@ -11,6 +11,7 @@ spl_autoload_register(function ($type) {
             'greeny\maillibrary\mailbox' => 'Mailbox.php',
             'greeny\maillibrary\selection' => 'Selection.php',
             'greeny\maillibrary\mail' => 'Mail.php',
+            'greeny\maillibrary\contact' => 'Contact.php',
             'greeny\maillibrary\contactlist' => 'ContactList.php',
             'greeny\maillibrary\contact' => 'Contact.php',
             'greeny\maillibrary\attachment' => 'Attachment.php',
