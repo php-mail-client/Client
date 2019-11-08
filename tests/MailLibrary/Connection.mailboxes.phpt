@@ -1,9 +1,11 @@
 <?php
-/** @var \greeny\MailLibrary\Connection $connection */
-$connection = require "../bootstrap.php";
 
+use PhpMailClient\Connection;
+use PhpMailClient\Mailbox;
 use Tester\Assert;
-use greeny\MailLibrary\Mailbox;
+
+/** @var Connection $connection */
+$connection = require __DIR__ . '/../bootstrap.php';
 
 $connection->deleteMailbox('x');
 Assert::equal(array(), $connection->getMailboxes());

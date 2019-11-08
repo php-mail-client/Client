@@ -1,6 +1,6 @@
 {
 	"name": "php-mail-client/client",
-	"description": "Full featured PHP mail client. Create, edit, delete, move and set flags to messages with ease! Drivers for IMAP4 and Microsoft Exchange Web Services available.",
+	"description": "Full featured PHP mail client. Create, edit, delete, move and set flags to messages with ease! Driver for IMAP4 included.",
 	"license": "MIT",
 	"authors": [
 		{
@@ -10,12 +10,15 @@
 		}
 	],
 	"autoload": {
+		"psr-4": {
+			"PhpMailClient\\": "src/"
+		},
 		"files": [
-			"MailLibrary/loader.php"
+			"src/loader.php"
 		]
 	},
 	"require": {
-		"php": ">= 5.4.0"
+		"php": ">= 7.1.0"
 	},
 	"require-dev": {
 		"nette/tester": "@dev"

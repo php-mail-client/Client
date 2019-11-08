@@ -1,9 +1,11 @@
 <?php
-/** @var \greeny\MailLibrary\Connection $connection */
-$connection = require "../bootstrap.php";
 
+use PhpMailClient\Connection;
+use PhpMailClient\Mail;
 use Tester\Assert;
-use greeny\MailLibrary\Mail;
+
+/** @var Connection $connection */
+$connection = require __DIR__ . '/../bootstrap.php';
 
 $mailbox = $connection->getMailbox('x');
 

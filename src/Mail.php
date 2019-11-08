@@ -1,11 +1,12 @@
 <?php
-/**
- * @author Tomáš Blatný
- */
 
-namespace greeny\MailLibrary;
+namespace PhpMailClient;
 
-class Mail {
+use PhpMailClient\Structures\IStructure;
+
+class Mail
+{
+
 	const ANSWERED = 'ANSWERED';
 	const BCC = 'BCC';
 	const BEFORE = 'BEFORE';
@@ -26,11 +27,11 @@ class Mail {
 	const TEXT = 'TEXT';
 	const TO = 'TO';
 
-	const FLAG_ANSWERED = "\\ANSWERED";
-	const FLAG_DELETED = "\\DELETED";
-	const FLAG_DRAFT = "\\DRAFT";
-	const FLAG_FLAGGED = "\\FLAGGED";
-	const FLAG_SEEN = "\\SEEN";
+	const FLAG_ANSWERED = '\\ANSWERED';
+	const FLAG_DELETED = '\\DELETED';
+	const FLAG_DRAFT = '\\DRAFT';
+	const FLAG_FLAGGED = '\\FLAGGED';
+	const FLAG_SEEN = '\\SEEN';
 
 	const ORDER_DATE = SORTARRIVAL;
 	const ORDER_FROM = SORTFROM;
@@ -39,10 +40,10 @@ class Mail {
 	const ORDER_CC = SORTCC;
 	const ORDER_SIZE = SORTSIZE;
 
-	/** @var \greeny\MailLibrary\Connection */
+	/** @var Connection */
 	protected $connection;
 
-	/** @var \greeny\MailLibrary\Mailbox */
+	/** @var Mailbox */
 	protected $mailbox;
 
 	/** @var int */
@@ -51,59 +52,36 @@ class Mail {
 	/** @var array */
 	protected $headers = NULL;
 
-	/** @var \greeny\MailLibrary\Structures\IStructure */
+	/** @var IStructure */
 	protected $structure = NULL;
 
 	/** @var array */
 	protected $flags = NULL;
 
-	/**
-	 * @param Connection $connection
-	 * @param Mailbox    $mailbox
-	 * @param int        $id
-	 */
-	public function __construct(Connection $connection, Mailbox $mailbox, $id)
+	public function __construct(Connection $connection, Mailbox $mailbox, int $id)
 	{
 		$this->connection = $connection;
 		$this->mailbox = $mailbox;
 		$this->id = $id;
 	}
 
-	/**
-	 * Header checker
-	 *
-	 * @param $name
-	 * @return bool
-	 */
-	public function __isset($name)
+	public function __isset(string $name): bool
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
 		return isset($this->headers[$this->formatHeaderName($name)]);
 	}
 
-	/**
-	 * Header getter
-	 *
-	 * @param string $name
-	 * @return mixed
-	 */
-	public function __get($name)
+	public function __get(string $name): string
 	{
 		return $this->getHeader($name);
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getId()
+	public function getId(): int
 	{
 		return $this->id;
 	}
 
-	/**
-	 * @return Mailbox
-	 */
-	public function getMailbox()
+	public function getMailbox(): Mailbox
 	{
 		return $this->mailbox;
 	}
@@ -111,28 +89,22 @@ class Mail {
 	/**
 	 * @return string[]
 	 */
-	public function getHeaders()
+	public function getHeaders(): array
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
 		return $this->headers;
 	}
 
-	/**
-	 * @param string $name
-	 * @return string
-	 */
-	public function getHeader($name)
+	public function getHeader(string $name): string
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
 		return $this->headers[$this->formatHeaderName($name)];
 	}
 
-	/**
-	 * @return Contact|null
-	 */
-	public function getSender() {
+	public function getSender(): ?Contact
+	{
 		$from = $this->getHeader('from');
-		if($from) {
+		if ($from) {
 			$contacts = $from->getContactsObjects();
 			return (count($contacts) ? $contacts[0] : NULL);
 		} else {
@@ -140,28 +112,19 @@ class Mail {
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getBody()
+	public function getBody(): string
 	{
 		$this->structure !== NULL || $this->initializeStructure();
 		return $this->structure->getBody();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getHtmlBody()
+	public function getHtmlBody(): string
 	{
 		$this->structure !== NULL || $this->initializeStructure();
 		return $this->structure->getHtmlBody();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getTextBody()
+	public function getTextBody(): string
 	{
 		$this->structure !== NULL || $this->initializeStructure();
 		return $this->structure->getTextBody();
@@ -170,53 +133,50 @@ class Mail {
 	/**
 	 * @return Attachment[]
 	 */
-	public function getAttachments()
+	public function getAttachments(): array
 	{
 		$this->structure !== NULL || $this->initializeStructure();
 		return $this->structure->getAttachments();
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getFlags()
+	public function getFlags(): array
 	{
 		$this->flags !== NULL || $this->initializeFlags();
 		return $this->flags;
 	}
 
-	public function setFlags(array $flags, $autoFlush = FALSE)
+	public function setFlags(array $flags, bool $flush = FALSE): void
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
-		foreach(array(
-			Mail::FLAG_ANSWERED,
-			Mail::FLAG_DELETED,
-			Mail::FLAG_DELETED,
-			Mail::FLAG_FLAGGED,
-			Mail::FLAG_SEEN,
-		) as $flag) {
-			if(isset($flags[$flag])) {
+		foreach ([
+			self::FLAG_ANSWERED,
+			self::FLAG_DELETED,
+			self::FLAG_DELETED,
+			self::FLAG_FLAGGED,
+			self::FLAG_SEEN,
+		] as $flag) {
+			if (isset($flags[$flag])) {
 				$this->connection->getDriver()->setFlag($this->id, $flag, $flags[$flag]);
 			}
 		}
-		if($autoFlush) {
+		if ($flush) {
 			$this->connection->getDriver()->flush();
 		}
 	}
 
-	public function move($toMailbox)
+	public function move(string $toMailbox): void
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		$this->connection->getDriver()->moveMail($this->id, $toMailbox);
 	}
 
-	public function copy($toMailbox)
+	public function copy(string $toMailbox): void
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		$this->connection->getDriver()->copyMail($this->id, $toMailbox);
 	}
 
-	public function delete()
+	public function delete(): void
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		$this->connection->getDriver()->deleteMail($this->id);
@@ -225,22 +185,22 @@ class Mail {
 	/**
 	 * Initializes headers
 	 */
-	protected function initializeHeaders()
+	protected function initializeHeaders(): void
 	{
-		$this->headers = array();
+		$this->headers = [];
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
-		foreach($this->connection->getDriver()->getHeaders($this->id) as $key => $value) {
+		foreach ($this->connection->getDriver()->getHeaders($this->id) as $key => $value) {
 			$this->headers[$this->formatHeaderName($key)] = $value;
 		}
 	}
 
-	protected function initializeStructure()
+	protected function initializeStructure(): void
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		$this->structure = $this->connection->getDriver()->getStructure($this->id, $this->mailbox);
 	}
 
-	protected function initializeFlags()
+	protected function initializeFlags(): void
 	{
 		$this->connection->getDriver()->switchMailbox($this->mailbox->getName());
 		$this->flags = $this->connection->getDriver()->getFlags($this->id);
@@ -252,9 +212,9 @@ class Mail {
 	 * @param string $name
 	 * @return string
 	 */
-	protected function formatHeaderName($name)
+	protected function formatHeaderName(string $name): string
 	{
-		return lcfirst(preg_replace_callback("~-.~", function($matches){
+		return lcfirst(preg_replace_callback('~-.~', function ($matches) {
 			return ucfirst(substr($matches[0], 1));
 		}, $name));
 	}

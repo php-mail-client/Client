@@ -1,15 +1,16 @@
 <?php
-/**
- * @author Tomáš Blatný
- */
 
-use greeny\MailLibrary\Mail;
-use greeny\MailLibrary\DriverException;
-use greeny\MailLibrary\Structures\IStructure;
-use greeny\MailLibrary\Drivers\IDriver;
+use PhpMailClient\Attachment;
+use PhpMailClient\Mail;
+use PhpMailClient\DriverException;
+use PhpMailClient\Mailbox;
+use PhpMailClient\Structures\IStructure;
+use PhpMailClient\Drivers\IDriver;
 
-class TestDriver implements IDriver {
-	protected static $filterTable = array(
+class TestDriver implements IDriver
+{
+
+	protected static $filterTable = [
 		Mail::ANSWERED => '%bANSWERED',
 		Mail::BCC => 'BCC "%s"',
 		Mail::BEFORE => 'BEFORE "%d"',
@@ -29,143 +30,148 @@ class TestDriver implements IDriver {
 		Mail::SUBJECT => 'SUBJECT "%s"',
 		Mail::TEXT => 'TEXT "%s"',
 		Mail::TO => 'TO "%s"',
-	);
+	];
 
-	protected $mailboxes = array('x');
+	protected $mailboxes = ['x'];
 
-	public function connect() {}
+	public function connect(): void
+	{
+	}
 
-	public function flush() {}
+	public function flush(): void
+	{
+	}
 
-	public function getMailboxes()
+	public function getMailboxes(): array
 	{
 		return $this->mailboxes;
 	}
 
-	public function createMailbox($name)
+	public function createMailbox(string $name): void
 	{
 		$this->mailboxes[] = $name;
 	}
 
-	public function renameMailbox($from, $to)
+	public function renameMailbox(string $from, string $to): void
 	{
-		foreach($this->mailboxes as $key => $mailbox) {
-			if($mailbox == $from) {
+		foreach ($this->mailboxes as $key => $mailbox) {
+			if ($mailbox === $from) {
 				$this->mailboxes[$key] = $to;
 				return;
 			}
 		}
 	}
 
-	public function deleteMailbox($name)
+	public function deleteMailbox(string $name): void
 	{
-		foreach($this->mailboxes as $key => $mailbox) {
-			if($mailbox == $name) {
+		foreach ($this->mailboxes as $key => $mailbox) {
+			if ($mailbox === $name) {
 				unset($this->mailboxes[$key]);
 				return;
 			}
 		}
 	}
 
-	public function switchMailbox($name) {}
-
-	public function getMailIds(array $filters, $limit = 0, $offset = 0, $orderBy = Mail::ORDER_DATE, $orderType = 'ASC')
+	public function switchMailbox(string $name): void
 	{
-		if(count($filters)) return array(1);
-		else return array(1, 2);
 	}
 
-	public function checkFilter($key, $value = NULL)
+	public function getMailIds(array $filters, int $limit = 0, int $offset = 0, string $orderBy = NULL, string $orderType = 'ASC'): array
 	{
-		if(!in_array($key, array_keys(self::$filterTable))) {
+		if (count($filters)) {
+			return [1];
+		}
+		return [1, 2];
+	}
+
+	public function checkFilter(string $key, $value = NULL): void
+	{
+		if (!in_array($key, array_keys(self::$filterTable))) {
 			throw new DriverException("Invalid filter key '$key'.");
 		}
 		$filtered = self::$filterTable[$key];
-		if(strpos($filtered, '%s') !== FALSE) {
-			if(!is_string($value)) {
-				throw new DriverException("Invalid value type for filter '$key', expected string, got ".gettype($value).".");
+		if (strpos($filtered, '%s') !== FALSE) {
+			if (!is_string($value)) {
+				throw new DriverException("Invalid value type for filter '$key', expected string, got " . gettype($value) . ".");
 			}
-		} else if(strpos($filtered, '%d') !== FALSE) {
-			if(!($value instanceof DateTime) && !is_int($value) && !strtotime($value)) {
-				throw new DriverException("Invalid value type for filter '$key', expected DateTime or timestamp, or textual representation of date, got ".gettype($value).".");
+		} elseif (strpos($filtered, '%d') !== FALSE) {
+			if (!($value instanceof DateTime) && !is_int($value) && !strtotime($value)) {
+				throw new DriverException("Invalid value type for filter '$key', expected DateTime or timestamp, or textual representation of date, got " . gettype($value) . ".");
 			}
-		} else if(strpos($filtered, '%b') !== FALSE) {
-			if(!is_bool($value)) {
-				throw new DriverException("Invalid value type for filter '$key', expected bool, got ".gettype($value).".");
+		} elseif (strpos($filtered, '%b') !== FALSE) {
+			if (!is_bool($value)) {
+				throw new DriverException("Invalid value type for filter '$key', expected bool, got " . gettype($value) . ".");
 			}
-		} else if($value !== NULL) {
+		} elseif ($value !== NULL) {
 			throw new DriverException("Cannot assign value to filter '$key'.");
 		}
 	}
 
-	public function getHeaders($mailId)
+	public function getHeaders(int $mailId): array
 	{
-		return array(
+		return [
 			'name' => md5($mailId),
 			'id' => $mailId,
-		);
+		];
 	}
 
-	public function getStructure($mailId, \greeny\MailLibrary\Mailbox $mailbox)
+	public function getStructure(int $mailId, Mailbox $mailbox): IStructure
 	{
-		return new TestStructure();
+		return new TestStructure;
 	}
 
-	public function getBody($mailId, array $partIds)
+	public function getBody(int $mailId, array $partIds): string
 	{
 		return str_repeat($mailId, 10);
 	}
 
-	public function getFlags($mailId)
+	public function getFlags(int $mailId): array
 	{
-
+		return[];
 	}
 
-	function setFlag($mailId, $flag, $value)
+	public function setFlag(int $mailId, string $flag, bool $value): void
 	{
-
 	}
 
-	function copyMail($mailId, $toMailbox)
+	public function copyMail(int $mailId, string $toMailbox): void
 	{
-
 	}
 
-	function moveMail($mailId, $toMailbox)
+	public function moveMail(int $mailId, string $toMailbox): void
 	{
-
 	}
 
-	function deleteMail($mailId)
+	public function deleteMail(int $mailId): void
 	{
-
 	}
+
 }
 
-class TestStructure implements IStructure {
-	public function getBody()
+class TestStructure implements IStructure
+{
+
+	public function getBody(): string
 	{
 		return str_repeat('body', 10);
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getHtmlBody()
+	public function getHtmlBody(): string
 	{
 		return str_repeat('htmlbody', 10);
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getTextBody()
+	public function getTextBody(): string
 	{
 		return str_repeat('textbody', 10);
 	}
 
 	/**
-	 * @return \greeny\MailLibrary\Attachment[]
+	 * @return Attachment[]
 	 */
-	public function getAttachments() {}
+	public function getAttachments(): array
+	{
+		return [];
+	}
+
 }

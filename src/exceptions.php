@@ -1,9 +1,6 @@
 <?php
-/**
- * @author Tomáš Blatný
- */
 
-namespace greeny\MailLibrary;
+namespace PhpMailClient;
 
 use Exception;
 
