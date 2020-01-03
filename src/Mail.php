@@ -95,7 +95,7 @@ class Mail
 		return $this->headers;
 	}
 
-	public function getHeader(string $name): string
+	public function getHeader(string $name): ?string
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
 		return $this->headers[$this->formatHeaderName($name)];
