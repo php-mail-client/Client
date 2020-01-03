@@ -127,7 +127,7 @@ class Selection implements Countable, IteratorAggregate
 
 	public function getIterator(): ArrayIterator
 	{
-		return new ArrayIterator($this->mails);
+		return new ArrayIterator($this->fetchAll());
 	}
 
 }
