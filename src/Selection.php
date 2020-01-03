@@ -104,7 +104,7 @@ class Selection implements Countable, IteratorAggregate
 	 */
 	public function fetchAll(): array
 	{
-		if ($this->mails !== NULL) {
+		if ($this->mails === NULL) {
 			$this->fetchMails();
 		}
 		return $this->mails;
