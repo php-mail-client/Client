@@ -103,9 +103,9 @@ class Mail
 
 	public function getSender(): ?Contact
 	{
-		$from = $this->getHeader('from');
-		if ($from) {
-			$contacts = $from->getContactsObjects();
+		$headers = $this->getHeaders();
+		if ($headers['from']) {
+			$contacts = $headers['from']->getContactsObjects();
 			return (count($contacts) ? $contacts[0] : NULL);
 		} else {
 			return NULL;

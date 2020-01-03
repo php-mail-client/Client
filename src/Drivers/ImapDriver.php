@@ -197,10 +197,10 @@ class ImapDriver implements IDriver
 				$list = new ContactList;
 				foreach ($contacts as $contact) {
 					$list->addContact(
-						isset($contact->mailbox) ? $contact->mailbox : NULL,
-						isset($contact->host) ? $contact->host : NULL,
-						isset($contact->personal) ? $contact->personal : NULL,
-						isset($contact->adl) ? $contact->adl : NULL
+						$contact->mailbox ?? NULL,
+						$contact->host ?? NULL,
+						$contact->personal ?? NULL,
+						$contact->adl ?? NULL
 					);
 				}
 				$list->build();

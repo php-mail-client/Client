@@ -38,12 +38,12 @@ class Contact
 		return $this->mailbox . '@' . $this->host;
 	}
 
-	public function getName(): string
+	public function getName(): ?string
 	{
 		return $this->personal;
 	}
 
-	public function getAdl(): string
+	public function getAdl(): ?string
 	{
 		return $this->adl;
 	}
