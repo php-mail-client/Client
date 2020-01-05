@@ -95,7 +95,7 @@ class Mail
 		return $this->headers;
 	}
 
-	public function getHeader(string $name): string
+	public function getHeader(string $name): ?string
 	{
 		$this->headers !== NULL || $this->initializeHeaders();
 		return $this->headers[$this->formatHeaderName($name)];
@@ -103,9 +103,9 @@ class Mail
 
 	public function getSender(): ?Contact
 	{
-		$from = $this->getHeader('from');
-		if ($from) {
-			$contacts = $from->getContactsObjects();
+		$headers = $this->getHeaders();
+		if ($headers['from']) {
+			$contacts = $headers['from']->getContactsObjects();
 			return (count($contacts) ? $contacts[0] : NULL);
 		} else {
 			return NULL;
