@@ -152,12 +152,13 @@ class ImapStructure implements IStructure {
 		}
 
 		if(isset($parameters['filename']) || isset($parameters['name'])) {
-			$this->attachmentsIds[] = array(
-				'id' => $partId,
-				'encoding' => $encoding,
-				'name' => isset($parameters['filename']) ? $parameters['filename'] : $parameters['name'],
-				'type' => self::$typeTable[$type]. '/' . $subtype,
-			);
+            $name = isset($parameters['filename']) ? $parameters['filename'] : $parameters['name'];
+            $this->attachmentsIds[] = array(
+                'id' => $partId,
+                'encoding' => $encoding,
+                'name' => iconv_mime_decode($name, 0, 'utf-8'),
+                'type' => self::$typeTable[$type]. '/' . $subtype,
+            );
 		} else if($type === self::TYPE_TEXT) {
 			if($subtype === 'HTML') {
 				$this->htmlBodyIds[] = array('id' => $partId, 'encoding' => $encoding);
