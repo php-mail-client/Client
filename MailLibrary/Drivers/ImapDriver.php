@@ -224,62 +224,52 @@ class ImapDriver implements IDriver
 	 * @param int $mailId
 	 * @return array of name => value
 	 */
-	public function getHeaders($mailId)
-	{
-		$raw = imap_fetchheader($this->resource, $mailId, FT_UID);
-		$lines = explode("\n", $raw);
-		$headers = array();
-		$lastHeader = NULL;
-		foreach($lines as $line) {
-			if(mb_substr($line, 0, 1, 'UTF-8') === " ") {
-				$headers[$lastHeader] .= $line;
-			} else {
-				$parts = explode(':', $line);
-				$name = $parts[0];
-				unset($parts[0]);
+    public function getHeaders($mailId)
+    {
+        $raw = imap_fetchheader($this->resource, $mailId, FT_UID);
+        preg_match_all('/([-\w]+):\s(.+)(?=\s[-\w]+:|$)/sU', $raw, $matches);
+        $headers = array();
 
-				$headers[$name] = implode(':', $parts);
-				$lastHeader = $name;
-			}
-		}
+        foreach($matches[1] as $i => $key) {
+            $headers[$key] = trim($matches[2][$i]);
+        }
 
-		foreach($headers as $key => $header) {
-			if(trim($key) === '') {
-				unset($headers[$key]);
-				continue;
-			}
-			if(strtolower($key) === 'subject') {
-				$decoded = imap_mime_header_decode($header);
+        foreach($headers as $key => $header) {
 
-				$text = '';
-				foreach($decoded as $part) {
-					if($part->charset !== 'UTF-8' && $part->charset !== 'default') {
-						$text .= mb_convert_encoding($part->text, 'UTF-8', $part->charset);
-					} else {
-						$text .= $part->text;
-					}
-				}
+            if(trim($key) === '') {
+                unset($headers[$key]);
+                continue;
+            }
+            if(strtolower($key) === 'subject') {
+                $headers[$key] = trim($this->mimeDecode($header));
+            } else if(in_array(strtolower($key), self::$contactHeaders)) {
+                $contacts = imap_rfc822_parse_adrlist(trim($this->mimeDecode($header)), 'UNKNOWN_HOST');
+                $list = new ContactList();
+                foreach($contacts as $contact) {
+                    $list->addContact(
+                        isset($contact->mailbox) ? $contact->mailbox : NULL,
+                        isset($contact->host) ? $contact->host : NULL,
+                        isset($contact->personal) ? $contact->personal : NULL,
+                        isset($contact->adl) ? $contact->adl : NULL
+                    );
+                }
+                $list->build();
+                $headers[$key] = $list;
+            } else {
+                $headers[$key] = trim(imap_utf8($header));
+            }
+        }
+        return $headers;
+    }
 
-				$headers[$key] = trim($text);
-			} else if(in_array(strtolower($key), self::$contactHeaders)) {
-				$contacts = imap_rfc822_parse_adrlist(imap_utf8(trim($header)), 'UNKNOWN_HOST');
-				$list = new ContactList();
-				foreach($contacts as $contact) {
-					$list->addContact(
-						isset($contact->mailbox) ? $contact->mailbox : NULL,
-						isset($contact->host) ? $contact->host : NULL,
-						isset($contact->personal) ? $contact->personal : NULL,
-						isset($contact->adl) ? $contact->adl : NULL
-					);
-				}
-				$list->build();
-				$headers[$key] = $list;
-			} else {
-				$headers[$key] = trim(imap_utf8($header));
-			}
-		}
-		return $headers;
-	}
+    public function mimeDecode($str)
+    {
+        // Remove spaces between two encoded lines.
+        $str = preg_replace('/(=\?[^?]+\?[A-Z]\?[^?]+\?=)\s+(?=(=\?[^?]+\?[A-Z]\?[^?]+\?=))/', '$1', $str);
+
+        // =?UTF-8?Q?=D0=9A=D0=BE=D0=BC=D0=B0=D0=BD=D0=B4=D0=B0?=
+        return preg_replace_callback('/=\?[^?]+\?[A-Z]\?[^?]+\?=/', array($this, 'mimeDecodeReplaceCallback'), $str);
+    }
 
 	/**
 	 * Creates structure for mail
@@ -466,4 +456,25 @@ class ImapDriver implements IDriver
 		return mb_convert_encoding($name, 'UTF7-IMAP', 'UTF-8');
 	}
 
+    /**
+     * @param array $m
+     * @return string
+     */
+    private function mimeDecodeReplaceCallback($m)
+    {
+        $str = $m[0];
+
+        if($mime = strval(@iconv_mime_decode($str, 1, 'utf-8'))) {
+            return $mime;
+        }
+
+        foreach(imap_mime_header_decode($str) as $header) {
+            if(strtolower($header->charset) != 'utf-8') {
+                $header->text = mb_convert_encoding($header->text, 'utf-8', $header->charset);
+            }
+            $mime .= $header->text;
+        }
+
+        return $mime;
+    }
 }
