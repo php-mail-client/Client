@@ -156,7 +156,7 @@ class ImapStructure implements IStructure {
             $this->attachmentsIds[] = array(
                 'id' => $partId,
                 'encoding' => $encoding,
-                'name' => iconv_mime_decode($name, 0, $encoding),
+                'name' => iconv_mime_decode($name, 0, 'utf-8'),
                 'type' => self::$typeTable[$type]. '/' . $subtype,
             );
 		} else if($type === self::TYPE_TEXT) {
