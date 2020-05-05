@@ -16,7 +16,8 @@
 	},
 	"require": {
 		"php": ">= 5.4.0",
-		"ext-imap": "*"
+		"ext-imap": "*",
+		"ext-mbstring": "*"
 	},
 	"require-dev": {
 		"nette/tester": "@dev"
