@@ -146,4 +146,10 @@ interface IDriver {
      * @return array
      */
     function getOverview($mailId);
+
+    /**
+     * @param $str
+     * @return string
+     */
+    function mimeDecode($str);
 }

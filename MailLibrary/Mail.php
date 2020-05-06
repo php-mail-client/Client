@@ -85,6 +85,18 @@ class Mail {
     }
 
     /**
+     * @return string|null
+     */
+    public function getSubject()
+    {
+        if(isset($this->overview->subject)) {
+            return $this->connection->getDriver()->mimeDecode($this->overview->subject);
+        }
+
+        return null;
+    }
+
+    /**
      * Header checker
      *
      * @param $name
