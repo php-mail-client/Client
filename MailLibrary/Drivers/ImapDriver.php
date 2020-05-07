@@ -268,7 +268,7 @@ class ImapDriver implements IDriver
         $str = preg_replace('/(=\?[^?]+\?[A-Z]\?[^?]+\?=)\s+(?=(=\?[^?]+\?[A-Z]\?[^?]+\?=))/', '$1', $str);
 
         // =?UTF-8?Q?=D0=9A=D0=BE=D0=BC=D0=B0=D0=BD=D0=B4=D0=B0?=
-        return preg_replace_callback('/=\?[^?]+\?[A-Z]\?[^?]+\?=/', array($this, 'mimeDecodeReplaceCallback'), $str);
+        return preg_replace_callback('/=\?[^?]+\?[A-z]\?[^?]+\?=/', array($this, 'mimeDecodeReplaceCallback'), $str);
     }
 
     /**
