@@ -1,5 +1,5 @@
 {
-	"name": "php-mail-client/client",
+	"name": "aivazoff/php-mail-client",
 	"description": "Full featured PHP mail client. Create, edit, delete, move and set flags to messages with ease! Drivers for IMAP4 and Microsoft Exchange Web Services available.",
 	"license": "MIT",
 	"authors": [
@@ -7,6 +7,10 @@
 			"name": "Tomáš Blatný",
 			"email": "blatny.tomas@seznam.cz",
 			"homepage": "http://tomasblatny.eu"
+		}, {
+			"name": "Arthur Aivazov",
+			"email": "arthur.aivazoff@gmail.com",
+			"homepage": "https://github.com/aivazoff"
 		}
 	],
 	"autoload": {
