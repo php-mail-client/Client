@@ -173,7 +173,7 @@ class ImapDriver implements IDriver
      * @param int    $offset
      * @param int    $orderBy
      * @param string $orderType
-     * @throws \greeny\MailLibrary\DriverException
+     * @throws DriverException
      * @return array of UIDs
      */
     public function getMailIds(array $filters, $limit = 0, $offset = 0, $orderBy = Mail::ORDER_DATE, $orderType = 'ASC')
@@ -294,12 +294,29 @@ class ImapDriver implements IDriver
     {
         $body = array();
         foreach($data as $part) {
-            $data = ($part['id'] == 0) ? imap_body($this->resource, $mailId, FT_UID | FT_PEEK) : imap_fetchbody($this->resource, $mailId, $part['id'], FT_UID | FT_PEEK);
-            $encoding = $part['encoding'];
-            if($encoding === ImapStructure::ENCODING_BASE64) {
-                $data = base64_decode($data);
-            } else if($encoding === ImapStructure::ENCODING_QUOTED_PRINTABLE) {
-                $data = quoted_printable_decode($data);
+            $data = ($part['id'] == 0)
+                ? imap_body($this->resource, $mailId, FT_UID | FT_PEEK)
+                : imap_fetchbody($this->resource, $mailId, $part['id'], FT_UID | FT_PEEK);
+
+            switch($part['encoding'])
+            {
+                case(1):
+                    if(preg_match_all('/=[\dA-Z]{2}=/', $data) > 10) {
+                        $data = quoted_printable_decode($data);
+                    }
+                    break;
+
+                case(2):
+                    $data = imap_binary($data);
+                    break;
+
+                case(ImapStructure::ENCODING_BASE64):
+                    $data = base64_decode($data);
+                    break;
+
+                case(ImapStructure::ENCODING_QUOTED_PRINTABLE):
+                    $data = quoted_printable_decode($data);
+                    break;
             }
 
             $body[] = $data;
@@ -403,6 +420,12 @@ class ImapDriver implements IDriver
     {
         return current(imap_fetch_overview($this->resource, $mailId, FT_UID));
     }
+
+    public function __destruct()
+    {
+        imap_errors();
+    }
+
 
     /**
      * Builds filter string from filters

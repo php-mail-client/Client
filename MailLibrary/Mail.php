@@ -5,6 +5,8 @@
 
 namespace greeny\MailLibrary;
 
+use greeny\MailLibrary\Structures\IStructure;
+
 class Mail {
     const ANSWERED = 'ANSWERED';
     const BCC = 'BCC';
@@ -39,10 +41,10 @@ class Mail {
     const ORDER_CC = SORTCC;
     const ORDER_SIZE = SORTSIZE;
 
-    /** @var \greeny\MailLibrary\Connection */
+    /** @var Connection */
     protected $connection;
 
-    /** @var \greeny\MailLibrary\Mailbox */
+    /** @var Mailbox */
     protected $mailbox;
 
     /** @var int */
@@ -51,7 +53,7 @@ class Mail {
     /** @var array */
     protected $headers = NULL;
 
-    /** @var \greeny\MailLibrary\Structures\IStructure */
+    /** @var IStructure */
     protected $structure = NULL;
 
     /** @var array */
@@ -158,6 +160,7 @@ class Mail {
      * @return Contact|null
      */
     public function getSender() {
+        /** @var ContactList $from */
         $from = $this->getHeader('from');
         if($from) {
             $contacts = $from->getContactsObjects();
