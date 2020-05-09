@@ -7,8 +7,9 @@ namespace greeny\MailLibrary;
 
 use greeny\MailLibrary\Drivers\IDriver;
 
-class Connection {
-	/** @var \greeny\MailLibrary\Drivers\IDriver */
+class Connection
+{
+	/** @var IDriver */
 	protected $driver;
 
 	/** @var bool */
